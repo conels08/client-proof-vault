@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 type ToastProps = {
   message: string;
@@ -9,17 +10,24 @@ type ToastProps = {
 
 export function Toast({ message, type }: ToastProps) {
   const [visible, setVisible] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const cleanedRef = useRef(false);
+
+  useEffect(() => {
+    if (cleanedRef.current) {
+      return;
+    }
+
+    if (searchParams.has('toast') || searchParams.has('toastType')) {
+      cleanedRef.current = true;
+      router.replace(pathname, { scroll: false });
+    }
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     const id = setTimeout(() => setVisible(false), 3500);
-
-    const url = new URL(window.location.href);
-    if (url.searchParams.has('toast') || url.searchParams.has('toastType')) {
-      url.searchParams.delete('toast');
-      url.searchParams.delete('toastType');
-      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
-    }
-
     return () => clearTimeout(id);
   }, []);
 
