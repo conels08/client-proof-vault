@@ -353,19 +353,26 @@ export default async function DashboardPage({
 
                     <details className="rounded-lg border border-slate-200 p-3">
                       <summary className="cursor-pointer text-sm font-medium text-slate-700">Add new testimonial</summary>
-                      <form action={createTestimonial} className="mt-3 space-y-2">
+                      {/* Keep create-form field names isolated from edit forms to prevent browser value carryover. */}
+                      <form action={createTestimonial} className="mt-3 space-y-2" autoComplete="off">
                         <input type="hidden" name="proof_section_id" value={section.id} />
                         <label className="space-y-1 text-sm">
                           <span>Name</span>
-                          <input name="name" required placeholder="Client name" />
+                          <input name="new_name" required placeholder="Client name" autoComplete="off" />
                         </label>
                         <label className="space-y-1 text-sm">
                           <span>Role / Company</span>
-                          <input name="role_company" placeholder="CEO, Acme Inc." />
+                          <input name="new_role_company" placeholder="CEO, Acme Inc." autoComplete="off" />
                         </label>
                         <label className="space-y-1 text-sm">
                           <span>Quote</span>
-                          <textarea name="quote" rows={3} required placeholder="What specific outcome did you deliver?" />
+                          <textarea
+                            name="new_quote"
+                            rows={3}
+                            required
+                            placeholder="What specific outcome did you deliver?"
+                            autoComplete="off"
+                          />
                         </label>
                         <p className="text-xs text-slate-500">This form clears after successful add.</p>
                         <SubmitButton pendingText="Adding..." className="bg-brand-600 text-white hover:bg-brand-700">
@@ -465,19 +472,25 @@ export default async function DashboardPage({
 
                     <details className="rounded-lg border border-slate-200 p-3">
                       <summary className="cursor-pointer text-sm font-medium text-slate-700">Add new work example</summary>
-                      <form action={createWorkExample} className="mt-3 space-y-2">
+                      <form action={createWorkExample} className="mt-3 space-y-2" autoComplete="off">
                         <input type="hidden" name="proof_section_id" value={section.id} />
                         <label className="space-y-1 text-sm">
                           <span>Link URL</span>
-                          <input name="link_url" placeholder="https://example.com/project" />
+                          <input name="new_link_url" placeholder="https://example.com/project" autoComplete="off" />
                         </label>
                         <label className="space-y-1 text-sm">
                           <span>Description</span>
-                          <textarea name="description" rows={3} required placeholder="Describe the work and outcome." />
+                          <textarea
+                            name="new_description"
+                            rows={3}
+                            required
+                            placeholder="Describe the work and outcome."
+                            autoComplete="off"
+                          />
                         </label>
                         <label className="space-y-1 text-sm">
                           <span>Metric text</span>
-                          <input name="metric_text" placeholder="e.g., Reduced churn by 15%" />
+                          <input name="new_metric_text" placeholder="e.g., Reduced churn by 15%" autoComplete="off" />
                         </label>
                         <p className="text-xs text-slate-500">Add either a link, an image upload, or both.</p>
                         <SubmitButton pendingText="Adding..." className="bg-brand-600 text-white hover:bg-brand-700">

@@ -169,9 +169,9 @@ export async function deleteSection(formData: FormData) {
 export async function createTestimonial(formData: FormData) {
   const { supabase } = await requireUser();
   const proofSectionId = String(formData.get('proof_section_id') ?? '');
-  const name = String(formData.get('name') ?? '').trim();
-  const roleCompany = String(formData.get('role_company') ?? '').trim() || null;
-  const quote = String(formData.get('quote') ?? '').trim();
+  const name = String(formData.get('new_name') ?? '').trim();
+  const roleCompany = String(formData.get('new_role_company') ?? '').trim() || null;
+  const quote = String(formData.get('new_quote') ?? '').trim();
 
   const { error } = await supabase.from('testimonials').insert({
     proof_section_id: proofSectionId,
@@ -256,9 +256,9 @@ export async function createWorkExample(formData: FormData) {
 
   const { error } = await supabase.from('work_examples').insert({
     proof_section_id: proofSectionId,
-    link_url: String(formData.get('link_url') ?? '').trim() || null,
-    description: String(formData.get('description') ?? '').trim(),
-    metric_text: String(formData.get('metric_text') ?? '').trim() || null
+    link_url: String(formData.get('new_link_url') ?? '').trim() || null,
+    description: String(formData.get('new_description') ?? '').trim(),
+    metric_text: String(formData.get('new_metric_text') ?? '').trim() || null
   });
 
   if (error) {
