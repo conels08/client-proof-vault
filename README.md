@@ -23,6 +23,8 @@ Create `.env.local`:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_or_publishable_key
+# Optional: used for absolute share-summary links; falls back to window.location.origin
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
 No service role key is required for MVP.

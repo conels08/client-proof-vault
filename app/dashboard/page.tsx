@@ -22,6 +22,7 @@ import {
 import { ConfirmSubmitButton } from './ConfirmSubmitButton';
 import { ProofPageForm } from './ProofPageForm';
 import { PublicUrlControls } from './PublicUrlControls';
+import { ShareModeControls } from './ShareModeControls';
 import { SubmitButton } from './SubmitButton';
 import { Toast } from './Toast';
 
@@ -224,6 +225,20 @@ export default async function DashboardPage({
     .select('id', { count: 'exact', head: true })
     .eq('proof_page_id', proofPage.id);
 
+  const summaryWorkExampleMetrics = workExamples
+    .map((work) => work.metric_text ?? '')
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .slice(0, 2);
+
+  const summaryTestimonial = testimonials[0]
+    ? {
+        quote: testimonials[0].quote,
+        name: testimonials[0].name,
+        roleCompany: testimonials[0].role_company
+      }
+    : null;
+
   return (
     <div className="space-y-6 pb-10">
       {toastMessage ? <Toast message={toastMessage} type={toastType} /> : null}
@@ -232,6 +247,14 @@ export default async function DashboardPage({
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="text-sm text-slate-600">Manage your proof page content and publish when ready.</p>
         <PublicUrlControls slug={proofPage.slug} />
+        <ShareModeControls
+          slug={proofPage.slug}
+          title={proofPage.title}
+          headline={proofPage.headline}
+          bio={proofPage.bio}
+          workExampleMetrics={summaryWorkExampleMetrics}
+          testimonial={summaryTestimonial}
+        />
       </div>
 
       <section className="card space-y-4">
