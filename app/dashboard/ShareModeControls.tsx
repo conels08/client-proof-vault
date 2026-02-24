@@ -38,7 +38,7 @@ export function ShareModeControls({
   const shareUrl = useMemo(() => {
     const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
     if (configured) {
-      return `${configured.replace(/\/$/, '')}${sharePath}`;
+      return `${configured.replace(/\/+$/, '')}${sharePath}`;
     }
 
     if (typeof window !== 'undefined') {
