@@ -169,9 +169,9 @@ export async function deleteSection(formData: FormData) {
 export async function createTestimonial(formData: FormData) {
   const { supabase } = await requireUser();
   const proofSectionId = String(formData.get('proof_section_id') ?? '');
-  const name = String(formData.get('new_name') ?? formData.get('name') ?? '').trim();
-  const roleCompany = String(formData.get('new_role_company') ?? formData.get('role_company') ?? '').trim() || null;
-  const quote = String(formData.get('new_quote') ?? formData.get('quote') ?? '').trim();
+  const name = String(formData.get('name') ?? '').trim();
+  const roleCompany = String(formData.get('role_company') ?? '').trim() || null;
+  const quote = String(formData.get('quote') ?? '').trim();
 
   const { error } = await supabase.from('testimonials').insert({
     proof_section_id: proofSectionId,

@@ -353,33 +353,19 @@ export default async function DashboardPage({
 
                     <details className="rounded-lg border border-slate-200 p-3">
                       <summary className="cursor-pointer text-sm font-medium text-slate-700">Add new testimonial</summary>
-                      {/* Keep new-item fields isolated from edit fields to prevent browser rehydrating
-                          this blank form with recently edited testimonial values. */}
-                      <form action={createTestimonial} className="mt-3 space-y-2" autoComplete="off">
+                      <form action={createTestimonial} className="mt-3 space-y-2">
                         <input type="hidden" name="proof_section_id" value={section.id} />
                         <label className="space-y-1 text-sm">
                           <span>Name</span>
-                          <input name="new_name" required placeholder="Client name" defaultValue="" autoComplete="off" />
+                          <input name="name" required placeholder="Client name" />
                         </label>
                         <label className="space-y-1 text-sm">
                           <span>Role / Company</span>
-                          <input
-                            name="new_role_company"
-                            placeholder="CEO, Acme Inc."
-                            defaultValue=""
-                            autoComplete="off"
-                          />
+                          <input name="role_company" placeholder="CEO, Acme Inc." />
                         </label>
                         <label className="space-y-1 text-sm">
                           <span>Quote</span>
-                          <textarea
-                            name="new_quote"
-                            rows={3}
-                            required
-                            placeholder="What specific outcome did you deliver?"
-                            defaultValue=""
-                            autoComplete="off"
-                          />
+                          <textarea name="quote" rows={3} required placeholder="What specific outcome did you deliver?" />
                         </label>
                         <p className="text-xs text-slate-500">This form clears after successful add.</p>
                         <SubmitButton pendingText="Adding..." className="bg-brand-600 text-white hover:bg-brand-700">
