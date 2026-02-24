@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 type ProofPage = {
@@ -24,12 +25,14 @@ type Testimonial = {
   role_company: string | null;
   quote: string;
   avatar_url: string | null;
+  avatar_thumb_url: string | null;
 };
 
 type WorkExample = {
   id: string;
   proof_section_id: string;
   image_url: string | null;
+  image_thumb_url: string | null;
   link_url: string | null;
   description: string;
   metric_text: string | null;
@@ -42,9 +45,13 @@ type Metric = {
   value: string;
 };
 
-async function signedUrl(supabase: ReturnType<typeof createServerSupabaseClient>, path: string | null) {
+async function signedUrl(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  path: string | null,
+  transform?: { width: number; height?: number }
+) {
   if (!path) return null;
-  const { data } = await supabase.storage.from('proof-media').createSignedUrl(path, 3600);
+  const { data } = await supabase.storage.from('proof-media').createSignedUrl(path, 3600, transform ? { transform } : undefined);
   return data?.signedUrl ?? null;
 }
 
@@ -72,26 +79,46 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
   const sections = (sectionRows ?? []) as ProofSection[];
   const sectionIds = sections.map((s) => s.id);
 
-  const [{ data: testimonialsRows }, { data: workExamplesRows }, { data: metricsRows }] = await Promise.all([
-    sectionIds.length
-      ? supabase
-          .from('testimonials')
-          .select('id, proof_section_id, name, role_company, quote, avatar_url')
-          .in('proof_section_id', sectionIds)
-      : Promise.resolve({ data: [] }),
-    sectionIds.length
-      ? supabase
-          .from('work_examples')
-          .select('id, proof_section_id, image_url, link_url, description, metric_text')
-          .in('proof_section_id', sectionIds)
-      : Promise.resolve({ data: [] }),
+  const [{ data: metricsRows }, testimonialsRows, workExamplesRows] = await Promise.all([
     sectionIds.length
       ? supabase.from('metrics').select('id, proof_section_id, label, value').in('proof_section_id', sectionIds)
-      : Promise.resolve({ data: [] })
+      : Promise.resolve({ data: [] }),
+    (async () => {
+      if (!sectionIds.length) return [];
+      const withThumbs = await supabase
+        .from('testimonials')
+        .select('id, proof_section_id, name, role_company, quote, avatar_url, avatar_thumb_url')
+        .in('proof_section_id', sectionIds);
+      if (!withThumbs.error) return (withThumbs.data ?? []) as Testimonial[];
+      const fallback = await supabase
+        .from('testimonials')
+        .select('id, proof_section_id, name, role_company, quote, avatar_url')
+        .in('proof_section_id', sectionIds);
+      return ((fallback.data ?? []) as Omit<Testimonial, 'avatar_thumb_url'>[]).map((row) => ({
+        ...row,
+        avatar_thumb_url: null
+      }));
+    })(),
+    (async () => {
+      if (!sectionIds.length) return [];
+      const withThumbs = await supabase
+        .from('work_examples')
+        .select('id, proof_section_id, image_url, image_thumb_url, link_url, description, metric_text')
+        .in('proof_section_id', sectionIds);
+      if (!withThumbs.error) return (withThumbs.data ?? []) as WorkExample[];
+      const fallback = await supabase
+        .from('work_examples')
+        .select('id, proof_section_id, image_url, link_url, description, metric_text')
+        .in('proof_section_id', sectionIds);
+      return ((fallback.data ?? []) as Omit<WorkExample, 'image_thumb_url'>[]).map((row) => ({
+        ...row,
+        image_thumb_url: null
+      }));
+    })()
   ]);
 
-  const testimonials = (testimonialsRows ?? []) as Testimonial[];
-  const workExamples = (workExamplesRows ?? []) as WorkExample[];
+  const testimonials = testimonialsRows as Testimonial[];
+  const workExamples = workExamplesRows as WorkExample[];
   const metrics = (metricsRows ?? []) as Metric[];
 
   await supabase.from('page_views').insert({ proof_page_id: page.id });
@@ -99,16 +126,16 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
   const avatarUrls = Object.fromEntries(
     await Promise.all(
       testimonials
-        .filter((t) => Boolean(t.avatar_url))
-        .map(async (t) => [t.id, await signedUrl(supabase, t.avatar_url)] as const)
+        .filter((t) => Boolean(t.avatar_thumb_url || t.avatar_url))
+        .map(async (t) => [t.id, await signedUrl(supabase, t.avatar_thumb_url || t.avatar_url, { width: 192, height: 192 })] as const)
     )
   );
 
   const imageUrls = Object.fromEntries(
     await Promise.all(
       workExamples
-        .filter((w) => Boolean(w.image_url))
-        .map(async (w) => [w.id, await signedUrl(supabase, w.image_url)] as const)
+        .filter((w) => Boolean(w.image_thumb_url || w.image_url))
+        .map(async (w) => [w.id, await signedUrl(supabase, w.image_thumb_url || w.image_url, { width: 640, height: 360 })] as const)
     )
   );
 
@@ -146,9 +173,12 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
                   >
                     <div className="flex items-start gap-3">
                       {avatarUrls[item.id] ? (
-                        <img
+                        <Image
                           src={avatarUrls[item.id] ?? ''}
                           alt={item.name}
+                          width={56}
+                          height={56}
+                          sizes="56px"
                           className="h-14 w-14 rounded-full border border-slate-200 object-cover"
                         />
                       ) : null}
@@ -184,9 +214,12 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
                     {imageUrls[item.id] ? (
                       <div className="mb-3 overflow-hidden rounded-lg border border-slate-200">
                         <div className="aspect-video">
-                          <img
+                          <Image
                             src={imageUrls[item.id] ?? ''}
                             alt="Work preview"
+                            width={640}
+                            height={360}
+                            sizes="(max-width: 640px) 100vw, 50vw"
                             className="h-full w-full object-cover"
                           />
                         </div>

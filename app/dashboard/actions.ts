@@ -17,6 +17,40 @@ function redirectDashboard(message: string, type: 'success' | 'error'): never {
   redirect(`/dashboard?toast=${encodeURIComponent(message)}&toastType=${type}`);
 }
 
+async function uploadThumbnailVariant(params: {
+  supabase: ReturnType<typeof createServerSupabaseClient>;
+  bucket: string;
+  originalPath: string;
+  thumbnailPath: string;
+  width: number;
+  height: number;
+  contentType?: string;
+}) {
+  const { supabase, bucket, originalPath, thumbnailPath, width, height, contentType } = params;
+
+  const { data: transformed, error: signError } = await supabase.storage
+    .from(bucket)
+    .createSignedUrl(originalPath, 120, { transform: { width, height } });
+
+  if (signError || !transformed?.signedUrl) {
+    return { error: signError ?? new Error('Could not sign transformed thumbnail URL') };
+  }
+
+  const transformedResponse = await fetch(transformed.signedUrl);
+  if (!transformedResponse.ok) {
+    return { error: new Error(`Could not fetch transformed thumbnail (${transformedResponse.status})`) };
+  }
+
+  const thumbnailBlob = await transformedResponse.blob();
+  const { error: uploadError } = await supabase.storage.from(bucket).upload(thumbnailPath, thumbnailBlob, {
+    upsert: false,
+    cacheControl: '31536000',
+    contentType
+  });
+
+  return { error: uploadError };
+}
+
 async function requireUser() {
   const supabase = createServerSupabaseClient();
   const {
@@ -239,17 +273,43 @@ export async function uploadTestimonialAvatar(formData: FormData) {
   }
 
   const ext = file.name.split('.').pop() || 'jpg';
-  const fileName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}.${ext}`;
+  const baseName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}`;
+  const fileName = `${baseName}.${ext}`;
+  const thumbFileName = `${baseName}-thumb.${ext}`;
   const objectPath = `${user.id}/${proofPageId}/${fileName}`;
+  const thumbPath = `${user.id}/${proofPageId}/thumbs/${thumbFileName}`;
 
-  const { error: uploadError } = await supabase.storage.from('proof-media').upload(objectPath, file, { upsert: false });
+  const { error: uploadError } = await supabase.storage.from('proof-media').upload(objectPath, file, {
+    upsert: false,
+    cacheControl: '31536000'
+  });
   if (uploadError) {
     redirectDashboard(uploadError.message, 'error');
   }
 
-  const { error: updateError } = await supabase.from('testimonials').update({ avatar_url: objectPath }).eq('id', testimonialId);
-  if (updateError) {
-    redirectDashboard(updateError.message, 'error');
+  const { error: thumbnailError } = await uploadThumbnailVariant({
+    supabase,
+    bucket: 'proof-media',
+    originalPath: objectPath,
+    thumbnailPath: thumbPath,
+    width: 256,
+    height: 256,
+    contentType: file.type || undefined
+  });
+
+  if (thumbnailError) {
+    redirectDashboard(thumbnailError.message, 'error');
+  }
+
+  const updateWithThumb = await supabase
+    .from('testimonials')
+    .update({ avatar_url: objectPath, avatar_thumb_url: thumbPath })
+    .eq('id', testimonialId);
+  if (updateWithThumb.error) {
+    const fallbackUpdate = await supabase.from('testimonials').update({ avatar_url: objectPath }).eq('id', testimonialId);
+    if (fallbackUpdate.error) {
+      redirectDashboard(fallbackUpdate.error.message, 'error');
+    }
   }
 
   revalidatePath('/dashboard');
@@ -320,17 +380,43 @@ export async function uploadWorkExampleImage(formData: FormData) {
   }
 
   const ext = file.name.split('.').pop() || 'jpg';
-  const fileName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}.${ext}`;
+  const baseName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}`;
+  const fileName = `${baseName}.${ext}`;
+  const thumbFileName = `${baseName}-thumb.${ext}`;
   const objectPath = `${user.id}/${proofPageId}/${fileName}`;
+  const thumbPath = `${user.id}/${proofPageId}/thumbs/${thumbFileName}`;
 
-  const { error: uploadError } = await supabase.storage.from('proof-media').upload(objectPath, file, { upsert: false });
+  const { error: uploadError } = await supabase.storage.from('proof-media').upload(objectPath, file, {
+    upsert: false,
+    cacheControl: '31536000'
+  });
   if (uploadError) {
     redirectDashboard(uploadError.message, 'error');
   }
 
-  const { error: updateError } = await supabase.from('work_examples').update({ image_url: objectPath }).eq('id', workExampleId);
-  if (updateError) {
-    redirectDashboard(updateError.message, 'error');
+  const { error: thumbnailError } = await uploadThumbnailVariant({
+    supabase,
+    bucket: 'proof-media',
+    originalPath: objectPath,
+    thumbnailPath: thumbPath,
+    width: 640,
+    height: 360,
+    contentType: file.type || undefined
+  });
+
+  if (thumbnailError) {
+    redirectDashboard(thumbnailError.message, 'error');
+  }
+
+  const updateWithThumb = await supabase
+    .from('work_examples')
+    .update({ image_url: objectPath, image_thumb_url: thumbPath })
+    .eq('id', workExampleId);
+  if (updateWithThumb.error) {
+    const fallbackUpdate = await supabase.from('work_examples').update({ image_url: objectPath }).eq('id', workExampleId);
+    if (fallbackUpdate.error) {
+      redirectDashboard(fallbackUpdate.error.message, 'error');
+    }
   }
 
   revalidatePath('/dashboard');
