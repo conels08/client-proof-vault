@@ -5,11 +5,13 @@ import { useState } from 'react';
 
 type PublicUrlControlsProps = {
   slug: string;
+  pathPrefix?: '/p' | '/r';
+  label?: string;
 };
 
-export function PublicUrlControls({ slug }: PublicUrlControlsProps) {
+export function PublicUrlControls({ slug, pathPrefix = '/p', label = 'Public URL' }: PublicUrlControlsProps) {
   const [copied, setCopied] = useState(false);
-  const relativePath = `/p/${slug}`;
+  const relativePath = `${pathPrefix}/${slug}`;
 
   const copyLink = async () => {
     const fullUrl = `${window.location.origin}${relativePath}`;
@@ -21,7 +23,7 @@ export function PublicUrlControls({ slug }: PublicUrlControlsProps) {
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
       <span>
-        Public URL:{' '}
+        {label}:{' '}
         <span className="font-medium text-slate-800">{relativePath}</span>
       </span>
       <button

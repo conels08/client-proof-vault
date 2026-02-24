@@ -381,3 +381,103 @@ export async function deleteMetric(formData: FormData) {
   revalidatePath('/dashboard');
   redirectDashboard('Metric deleted.', 'success');
 }
+
+export async function approveTestimonialRequest(formData: FormData) {
+  const { supabase } = await requireUser();
+  const requestId = String(formData.get('request_id') ?? '');
+
+  const { data: request, error: requestError } = await supabase
+    .from('testimonial_requests')
+    .select('id, proof_page_id, name, role_company, quote, avatar_url, status')
+    .eq('id', requestId)
+    .single();
+
+  if (requestError || !request) {
+    redirectDashboard('Testimonial request not found.', 'error');
+  }
+
+  if (request.status !== 'pending') {
+    redirectDashboard('Only pending requests can be approved.', 'error');
+  }
+
+  const { data: existingSection } = await supabase
+    .from('proof_sections')
+    .select('id, position')
+    .eq('proof_page_id', request.proof_page_id)
+    .eq('type', 'testimonial')
+    .order('position', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  let testimonialSectionId = existingSection?.id ?? null;
+
+  if (!testimonialSectionId) {
+    const { data: lastSection } = await supabase
+      .from('proof_sections')
+      .select('position')
+      .eq('proof_page_id', request.proof_page_id)
+      .order('position', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const nextPosition = (lastSection?.position ?? 0) + 1;
+
+    const { data: newSection, error: sectionError } = await supabase
+      .from('proof_sections')
+      .insert({
+        proof_page_id: request.proof_page_id,
+        type: 'testimonial',
+        position: nextPosition
+      })
+      .select('id')
+      .single();
+
+    if (sectionError || !newSection) {
+      redirectDashboard(sectionError?.message || 'Failed to create testimonial section.', 'error');
+    }
+
+    testimonialSectionId = newSection.id;
+  }
+
+  const { error: insertError } = await supabase.from('testimonials').insert({
+    proof_section_id: testimonialSectionId,
+    name: request.name,
+    role_company: request.role_company,
+    quote: request.quote,
+    avatar_url: request.avatar_url
+  });
+
+  if (insertError) {
+    redirectDashboard(insertError.message, 'error');
+  }
+
+  const { error: updateError } = await supabase
+    .from('testimonial_requests')
+    .update({ status: 'approved' })
+    .eq('id', request.id);
+
+  if (updateError) {
+    redirectDashboard(updateError.message, 'error');
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/p/[slug]', 'page');
+  redirectDashboard('Testimonial request approved and added to your page.', 'success');
+}
+
+export async function rejectTestimonialRequest(formData: FormData) {
+  const { supabase } = await requireUser();
+  const requestId = String(formData.get('request_id') ?? '');
+
+  const { error } = await supabase
+    .from('testimonial_requests')
+    .update({ status: 'rejected' })
+    .eq('id', requestId);
+
+  if (error) {
+    redirectDashboard(error.message, 'error');
+  }
+
+  revalidatePath('/dashboard');
+  redirectDashboard('Testimonial request rejected.', 'success');
+}

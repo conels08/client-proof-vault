@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { generateUniqueSlug } from '@/lib/slug';
 import {
+  approveTestimonialRequest,
   createMetric,
   createSection,
   createTestimonial,
@@ -11,6 +12,7 @@ import {
   deleteTestimonial,
   deleteWorkExample,
   moveSection,
+  rejectTestimonialRequest,
   updateMetric,
   updateTestimonial,
   updateWorkExample,
@@ -64,6 +66,17 @@ type Metric = {
   proof_section_id: string;
   label: string;
   value: string;
+};
+
+type TestimonialRequest = {
+  id: string;
+  proof_page_id: string;
+  name: string;
+  role_company: string | null;
+  quote: string;
+  avatar_url: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
 };
 
 async function signedUrl(supabase: ReturnType<typeof createServerSupabaseClient>, path: string | null) {
@@ -172,6 +185,24 @@ export default async function DashboardPage({
   const workExamples = (workExampleRows ?? []) as WorkExample[];
   const metrics = (metricRows ?? []) as Metric[];
 
+  const [{ data: pendingRequestRows }, { data: approvedRequestRows }] = await Promise.all([
+    supabase
+      .from('testimonial_requests')
+      .select('id, proof_page_id, name, role_company, quote, avatar_url, status, created_at')
+      .eq('proof_page_id', proofPage.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('testimonial_requests')
+      .select('id, proof_page_id, name, role_company, quote, avatar_url, status, created_at')
+      .eq('proof_page_id', proofPage.id)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+  ]);
+
+  const pendingRequests = (pendingRequestRows ?? []) as TestimonialRequest[];
+  const approvedRequests = (approvedRequestRows ?? []) as TestimonialRequest[];
+
   const avatarUrls = Object.fromEntries(
     await Promise.all(
       testimonials
@@ -213,6 +244,67 @@ export default async function DashboardPage({
           )}
         </div>
         <ProofPageForm proofPage={proofPage} />
+      </section>
+
+      <section className="card space-y-4">
+        <h2 className="text-lg font-semibold">Collect Testimonials</h2>
+        <PublicUrlControls slug={proofPage.slug} pathPrefix="/r" label="Request Link" />
+
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-slate-700">Pending requests</h3>
+          {pendingRequests.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-600">
+              No pending testimonials yet. Share your request link after a project completes.
+            </p>
+          ) : (
+            pendingRequests.map((request) => (
+              <article key={request.id} className="rounded-lg border border-slate-200 p-3">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-slate-800">{request.name}</p>
+                  <p className="text-xs text-slate-500">{new Date(request.created_at).toLocaleString()}</p>
+                </div>
+                {request.role_company ? <p className="text-sm text-slate-600">{request.role_company}</p> : null}
+                <p className="mt-2 text-sm text-slate-800">"{request.quote}"</p>
+                <div className="mt-3 flex gap-2">
+                  <form action={approveTestimonialRequest}>
+                    <input type="hidden" name="request_id" value={request.id} />
+                    <SubmitButton pendingText="Approving..." className="bg-brand-600 text-white hover:bg-brand-700">
+                      Approve
+                    </SubmitButton>
+                  </form>
+                  <form action={rejectTestimonialRequest}>
+                    <input type="hidden" name="request_id" value={request.id} />
+                    <SubmitButton pendingText="Rejecting..." className="border border-red-200 bg-white text-red-700 hover:bg-red-50">
+                      Reject
+                    </SubmitButton>
+                  </form>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+
+        <details className="rounded-lg border border-slate-200 p-3">
+          <summary className="cursor-pointer text-sm font-medium text-slate-700">
+            Approved requests ({approvedRequests.length})
+          </summary>
+          <div className="mt-3 space-y-2">
+            {approvedRequests.length === 0 ? (
+              <p className="text-sm text-slate-500">No approved requests yet.</p>
+            ) : (
+              approvedRequests.map((request) => (
+                <article key={request.id} className="rounded-lg border border-slate-200 p-3">
+                  <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-slate-800">{request.name}</p>
+                    <p className="text-xs text-slate-500">{new Date(request.created_at).toLocaleString()}</p>
+                  </div>
+                  {request.role_company ? <p className="text-sm text-slate-600">{request.role_company}</p> : null}
+                  <p className="mt-2 text-sm text-slate-800">"{request.quote}"</p>
+                </article>
+              ))
+            )}
+          </div>
+        </details>
       </section>
 
       <section className="card space-y-4">
