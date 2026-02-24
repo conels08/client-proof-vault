@@ -41,6 +41,9 @@ export async function updateProofPage(formData: FormData) {
   const status = String(formData.get('status') ?? 'draft');
   const theme = String(formData.get('theme') ?? 'light');
   const accentColor = String(formData.get('accent_color') ?? '#3B82F6').trim();
+  const ctaEnabled = formData.get('cta_enabled') === 'on';
+  const ctaLabel = String(formData.get('cta_label') ?? '').trim() || null;
+  const ctaUrl = String(formData.get('cta_url') ?? '').trim() || null;
 
   if (!isValidHexColor(accentColor)) {
     redirectDashboard('Accent color must be a valid hex value like #3B82F6.', 'error');
@@ -56,6 +59,9 @@ export async function updateProofPage(formData: FormData) {
       status,
       theme,
       accent_color: accentColor,
+      cta_enabled: ctaEnabled,
+      cta_label: ctaLabel,
+      cta_url: ctaUrl,
       updated_at: new Date().toISOString()
     })
     .eq('id', id);

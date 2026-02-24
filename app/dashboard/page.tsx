@@ -35,6 +35,9 @@ type ProofPage = {
   status: 'draft' | 'published';
   theme: 'light' | 'dark';
   accent_color: string;
+  cta_enabled: boolean;
+  cta_label: string | null;
+  cta_url: string | null;
 };
 
 type ProofSection = {
@@ -104,7 +107,7 @@ async function ensureProofPage(
 ): Promise<ProofPage> {
   const { data: existing } = await supabase
     .from('proof_pages')
-    .select('id, title, headline, bio, slug, status, theme, accent_color')
+    .select('id, title, headline, bio, slug, status, theme, accent_color, cta_enabled, cta_label, cta_url')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -123,9 +126,10 @@ async function ensureProofPage(
       headline: 'Freelancer',
       slug,
       status: 'draft',
-      theme: 'light'
+      theme: 'light',
+      cta_enabled: false
     })
-    .select('id, title, headline, bio, slug, status, theme, accent_color')
+    .select('id, title, headline, bio, slug, status, theme, accent_color, cta_enabled, cta_label, cta_url')
     .single();
 
   if (error || !created) {
@@ -225,6 +229,12 @@ export default async function DashboardPage({
     .select('id', { count: 'exact', head: true })
     .eq('proof_page_id', proofPage.id);
 
+  const { count: ctaClickCount } = await supabase
+    .from('proof_page_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('proof_page_id', proofPage.id)
+    .eq('event_type', 'cta_click');
+
   const summaryWorkExampleMetrics = workExamples
     .map((work) => work.metric_text ?? '')
     .map((value) => value.trim())
@@ -261,7 +271,9 @@ export default async function DashboardPage({
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Proof page settings</h2>
           {proofPage.status === 'published' ? (
-            <span className="text-sm text-slate-600">Views: {viewCount ?? 0} (total)</span>
+            <span className="text-sm text-slate-600">
+              Views: {viewCount ?? 0} (total) · CTA clicks: {ctaClickCount ?? 0}
+            </span>
           ) : (
             <span className="text-sm text-slate-500">Publish to start tracking views.</span>
           )}

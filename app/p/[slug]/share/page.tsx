@@ -8,6 +8,9 @@ type ProofPage = {
   slug: string;
   theme: 'light' | 'dark';
   accent_color: string;
+  cta_enabled: boolean;
+  cta_label: string | null;
+  cta_url: string | null;
 };
 
 type ProofSection = {
@@ -53,7 +56,7 @@ export default async function PublicProofSharePage({ params }: { params: { slug:
 
   const { data: page } = await supabase
     .from('proof_pages')
-    .select('id, title, headline, slug, theme, accent_color')
+    .select('id, title, headline, slug, theme, accent_color, cta_enabled, cta_label, cta_url')
     .eq('slug', params.slug)
     .eq('status', 'published')
     .maybeSingle();
@@ -121,6 +124,16 @@ export default async function PublicProofSharePage({ params }: { params: { slug:
       <header className="space-y-2">
         <h1 className="text-2xl font-bold sm:text-3xl">{publicPage.title}</h1>
         <p className={publicPage.theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}>{publicPage.headline}</p>
+        {publicPage.cta_enabled && publicPage.cta_url ? (
+          <div className="pt-2">
+            <a
+              href={`/p/${publicPage.slug}/share/cta`}
+              className="inline-flex items-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+            >
+              {publicPage.cta_label?.trim() || 'Contact'}
+            </a>
+          </div>
+        ) : null}
       </header>
 
       {compactMetrics.length > 0 ? (

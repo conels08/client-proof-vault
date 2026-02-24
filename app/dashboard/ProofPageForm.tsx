@@ -14,6 +14,9 @@ type ProofPageFormProps = {
     status: 'draft' | 'published';
     theme: 'light' | 'dark';
     accent_color: string;
+    cta_enabled: boolean;
+    cta_label: string | null;
+    cta_url: string | null;
   };
 };
 
@@ -26,6 +29,9 @@ export function ProofPageForm({ proofPage }: ProofPageFormProps) {
   const [accentColor, setAccentColor] = useState(initialColor);
   const [advancedHex, setAdvancedHex] = useState(initialColor);
   const [status, setStatus] = useState<'draft' | 'published'>(proofPage.status);
+  const [ctaEnabled, setCtaEnabled] = useState<boolean>(proofPage.cta_enabled);
+  const [ctaLabel, setCtaLabel] = useState<string>(proofPage.cta_label ?? '');
+  const [ctaUrl, setCtaUrl] = useState<string>(proofPage.cta_url ?? '');
 
   const colorError = useMemo(() => {
     if (!advancedHex) return 'Enter a hex color such as #3B82F6.';
@@ -118,6 +124,51 @@ export function ProofPageForm({ proofPage }: ProofPageFormProps) {
         <p className={`text-xs ${colorError ? 'text-red-600' : 'text-slate-500'}`}>
           {colorError || 'Pick a color or enter a custom #RRGGBB value.'}
         </p>
+      </div>
+
+      <div className="space-y-2 text-sm md:col-span-2 rounded-lg border border-slate-200 p-3">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="cta_enabled"
+            defaultChecked={proofPage.cta_enabled}
+            onChange={(e) => setCtaEnabled(e.target.checked)}
+            className="h-4 w-4"
+          />
+          <span className="font-medium">Enable share page CTA</span>
+        </label>
+        <p className="text-xs text-slate-500">Show a primary conversion button on `/p/{proofPage.slug}/share`.</p>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="space-y-1 text-sm">
+            <span>CTA label</span>
+            <input
+              name="cta_label"
+              defaultValue={proofPage.cta_label ?? ''}
+              placeholder="e.g., Book a call"
+              onChange={(e) => setCtaLabel(e.target.value)}
+            />
+            <p className="text-xs text-slate-500">Optional. Defaults to “Contact” when empty.</p>
+          </label>
+          <label className="space-y-1 text-sm">
+            <span>CTA URL or email</span>
+            <input
+              name="cta_url"
+              defaultValue={proofPage.cta_url ?? ''}
+              placeholder="https://cal.com/you or hello@you.com"
+              onChange={(e) => setCtaUrl(e.target.value)}
+            />
+            <p className="text-xs text-slate-500">Use a full URL or email address.</p>
+          </label>
+        </div>
+
+        {ctaEnabled && ctaUrl.trim() ? (
+          <div className="pt-1">
+            <span className="inline-flex items-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white">
+              {ctaLabel.trim() || 'Contact'}
+            </span>
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-3 md:col-span-2">
