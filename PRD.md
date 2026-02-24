@@ -20,6 +20,8 @@ The page is designed to be:
 
 This product is **not** a portfolio builder, CRM, or proposal tool.
 
+The MVP defined in this document is complete. The next product focus is shipping value features that increase trust, sharing effectiveness, and measurable outcomes while keeping the core one-page model intact.
+
 ---
 
 ## 2. Target User
@@ -120,3 +122,27 @@ The following must **not** be implemented:
 - Pages load quickly on mobile
 - Public/private access is correctly enforced
 - The product feels focused and distraction-free
+
+---
+
+## 11. Roadmap (Post-MVP)
+
+### Phase A: Value Features That Justify Payment Soon
+
+- **Testimonial Request Links:** Users can generate a public request form URL to collect testimonials. New submissions enter a `Pending` state, and users can approve or reject each submission before it appears on their page.
+- **Share Mode:** Users can open a condensed, share-focused page view plus copy a short “share summary” snippet for outreach messages.
+- **Badges (Non-AI):**
+  - **Verified Email:** Trust badge based on authenticated account email.
+  - **Verified Domain:** Trust badge based on DNS TXT verification for a user-controlled domain.
+
+### Phase B: Make It Premium + Measurable
+
+- **Analytics Panel:** Simple dashboard for total views and views-over-time trends.
+- **Public Page Polish:** Stronger typography and layout, improved image handling, and cleaner section ordering presentation.
+- **Custom Domains:** Users can map a custom domain to their public proof page.
+
+### Phase C: AI Assist (Low-Risk)
+
+- **AI Headline + Bio Optimizer:** Rewrite suggestions to improve clarity and trust.
+- **AI Testimonial Summarizer/Shortener (Optional):** Suggest concise testimonial variants.
+- **AI Metric Framing Suggestions (Optional):** Suggest clearer metric phrasing without inventing claims.
