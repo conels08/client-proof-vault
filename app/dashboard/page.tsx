@@ -313,7 +313,7 @@ export default async function DashboardPage({
                             </SubmitButton>
                           </form>
 
-                          <form action={uploadTestimonialAvatar} className="mt-3 space-y-2" encType="multipart/form-data">
+                          <form action={uploadTestimonialAvatar} className="mt-3 space-y-2">
                             <input type="hidden" name="testimonial_id" value={testimonial.id} />
                             <input type="hidden" name="proof_page_id" value={proofPage.id} />
                             <label className="space-y-1 text-sm">
@@ -411,7 +411,7 @@ export default async function DashboardPage({
                             </SubmitButton>
                           </form>
 
-                          <form action={uploadWorkExampleImage} className="mt-3 space-y-2" encType="multipart/form-data">
+                          <form action={uploadWorkExampleImage} className="mt-3 space-y-2">
                             <input type="hidden" name="work_example_id" value={work.id} />
                             <input type="hidden" name="proof_page_id" value={proofPage.id} />
                             <label className="space-y-1 text-sm">
