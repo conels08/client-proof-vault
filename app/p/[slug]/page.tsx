@@ -10,6 +10,7 @@ type ProofPage = {
   slug: string;
   theme: 'light' | 'dark';
   accent_color: string;
+  avatar_url: string | null;
 };
 
 type ProofSection = {
@@ -62,7 +63,7 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
 
   const { data: page } = await supabase
     .from('proof_pages')
-    .select('id, title, headline, bio, slug, theme, accent_color')
+    .select('id, title, headline, bio, slug, theme, accent_color, avatar_url')
     .eq('slug', params.slug)
     .maybeSingle();
 
@@ -140,6 +141,7 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
   );
 
   const publicPage = page as ProofPage;
+  const pageAvatarUrl = await signedUrl(supabase, publicPage.avatar_url, { width: 144, height: 144 });
 
   return (
     <div
@@ -148,12 +150,26 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
       }`}
       style={{ borderTopColor: publicPage.accent_color, borderTopWidth: 6 }}
     >
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold sm:text-3xl">{publicPage.title}</h1>
-        <p className={publicPage.theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}>{publicPage.headline}</p>
-        {publicPage.bio ? (
-          <p className={publicPage.theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}>{publicPage.bio}</p>
-        ) : null}
+      <header className="space-y-3">
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+          {pageAvatarUrl ? (
+            <Image
+              src={pageAvatarUrl}
+              alt={`${publicPage.title} avatar`}
+              width={64}
+              height={64}
+              sizes="64px"
+              className="h-16 w-16 rounded-full border border-slate-200 object-cover"
+            />
+          ) : null}
+          <div className={`space-y-2 ${pageAvatarUrl ? 'text-center sm:text-left' : ''}`}>
+            <h1 className="text-2xl font-bold sm:text-3xl">{publicPage.title}</h1>
+            <p className={publicPage.theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}>{publicPage.headline}</p>
+            {publicPage.bio ? (
+              <p className={publicPage.theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}>{publicPage.bio}</p>
+            ) : null}
+          </div>
+        </div>
       </header>
 
       {sections.map((section) => {

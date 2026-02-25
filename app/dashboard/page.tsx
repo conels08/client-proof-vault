@@ -20,6 +20,8 @@ type ProofPage = {
   cta_enabled: boolean;
   cta_label: string | null;
   cta_url: string | null;
+  avatar_url: string | null;
+  avatar_updated_at?: string | null;
 };
 
 function getParam(value: string | string[] | undefined) {
@@ -34,7 +36,7 @@ async function ensureProofPage(
 ): Promise<ProofPage> {
   const { data: existing } = await supabase
     .from('proof_pages')
-    .select('id, title, headline, bio, slug, status, theme, accent_color, cta_enabled, cta_label, cta_url')
+    .select('id, title, headline, bio, slug, status, theme, accent_color, cta_enabled, cta_label, cta_url, avatar_url, avatar_updated_at')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -56,7 +58,7 @@ async function ensureProofPage(
       theme: 'light',
       cta_enabled: false
     })
-    .select('id, title, headline, bio, slug, status, theme, accent_color, cta_enabled, cta_label, cta_url')
+    .select('id, title, headline, bio, slug, status, theme, accent_color, cta_enabled, cta_label, cta_url, avatar_url, avatar_updated_at')
     .single();
 
   if (error || !created) {

@@ -108,6 +108,69 @@ export async function updateProofPage(formData: FormData) {
   redirectDashboard(status === 'published' ? 'Proof page saved and published.' : 'Proof page saved as draft.', 'success');
 }
 
+export async function uploadProofPageAvatar(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const proofPageId = String(formData.get('proof_page_id') ?? '');
+  const file = formData.get('avatar') as File | null;
+
+  if (!file || file.size === 0) {
+    redirectDashboard('Please select an avatar image.', 'error');
+  }
+
+  const ext = file.name.split('.').pop() || 'jpg';
+  const baseName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}`;
+  const fileName = `${baseName}.${ext}`;
+  const objectPath = `${user.id}/${proofPageId}/avatar/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage.from('proof-media').upload(objectPath, file, {
+    upsert: false,
+    cacheControl: '31536000'
+  });
+  if (uploadError) {
+    redirectDashboard(uploadError.message, 'error');
+  }
+
+  const updateWithTimestamp = await supabase
+    .from('proof_pages')
+    .update({ avatar_url: objectPath, avatar_updated_at: new Date().toISOString() })
+    .eq('id', proofPageId);
+  if (updateWithTimestamp.error) {
+    const fallbackUpdate = await supabase.from('proof_pages').update({ avatar_url: objectPath }).eq('id', proofPageId);
+    if (fallbackUpdate.error) {
+      redirectDashboard(fallbackUpdate.error.message, 'error');
+    }
+  }
+
+  revalidatePath('/dashboard');
+  redirectDashboard('Profile avatar uploaded.', 'success');
+}
+
+export async function removeProofPageAvatar(formData: FormData) {
+  const { supabase } = await requireUser();
+  const proofPageId = String(formData.get('proof_page_id') ?? '');
+
+  const { data: current } = await supabase.from('proof_pages').select('avatar_url').eq('id', proofPageId).maybeSingle();
+
+  const updateWithTimestamp = await supabase
+    .from('proof_pages')
+    .update({ avatar_url: null, avatar_updated_at: new Date().toISOString() })
+    .eq('id', proofPageId);
+
+  if (updateWithTimestamp.error) {
+    const fallbackUpdate = await supabase.from('proof_pages').update({ avatar_url: null }).eq('id', proofPageId);
+    if (fallbackUpdate.error) {
+      redirectDashboard(fallbackUpdate.error.message, 'error');
+    }
+  }
+
+  if (current?.avatar_url) {
+    await supabase.storage.from('proof-media').remove([current.avatar_url]);
+  }
+
+  revalidatePath('/dashboard');
+  redirectDashboard('Profile avatar removed.', 'success');
+}
+
 export async function createSection(formData: FormData) {
   const { supabase } = await requireUser();
   const proofPageId = String(formData.get('proof_page_id') ?? '');

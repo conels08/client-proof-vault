@@ -12,7 +12,9 @@ import {
   deleteWorkExample,
   moveSection,
   rejectTestimonialRequest,
+  removeProofPageAvatar,
   updateMetric,
+  uploadProofPageAvatar,
   updateTestimonial,
   updateWorkExample,
   uploadTestimonialAvatar,
@@ -34,6 +36,8 @@ type ProofPage = {
   cta_enabled: boolean;
   cta_label: string | null;
   cta_url: string | null;
+  avatar_url: string | null;
+  avatar_updated_at?: string | null;
 };
 
 type ProofSection = {
@@ -213,6 +217,8 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
     )
   );
 
+  const proofPageAvatarUrl = await signedUrl(supabase, proofPage.avatar_url, { width: 192, height: 192 });
+
   return (
     <>
       <section className="card space-y-4">
@@ -221,6 +227,34 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
             {proofPage.status === 'published' ? 'Published' : 'Draft'}
           </span>
+        </div>
+        <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/50 p-3">
+          <p className="text-sm font-medium text-slate-800">Avatar</p>
+          <div className="flex flex-wrap items-center gap-3">
+            {proofPageAvatarUrl ? (
+              <Image src={proofPageAvatarUrl} alt="Proof page avatar" width={56} height={56} className="h-14 w-14 rounded-full border border-slate-200 object-cover" />
+            ) : (
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-500">
+                {proofPage.title.trim().charAt(0).toUpperCase() || 'P'}
+              </div>
+            )}
+            <form action={uploadProofPageAvatar} className="flex flex-wrap items-center gap-2">
+              <input type="hidden" name="proof_page_id" value={proofPage.id} />
+              <input type="file" name="avatar" accept="image/*" required className="max-w-[220px]" />
+              <SubmitButton pendingText="Uploading..." className="bg-brand-600 text-white hover:bg-brand-700">
+                Upload avatar
+              </SubmitButton>
+            </form>
+            {proofPage.avatar_url ? (
+              <form action={removeProofPageAvatar}>
+                <input type="hidden" name="proof_page_id" value={proofPage.id} />
+                <SubmitButton pendingText="Removing..." className="border border-red-200 bg-white text-red-700 hover:bg-red-50">
+                  Remove avatar
+                </SubmitButton>
+              </form>
+            ) : null}
+          </div>
+          <p className="text-xs text-slate-500">Shown on your public proof page.</p>
         </div>
         <ProofPageForm proofPage={proofPage} />
       </section>
