@@ -71,8 +71,8 @@ export default function Reveal({
         observer.disconnect();
       },
       {
-        threshold: 0.16,
-        rootMargin: '0px 0px -8% 0px'
+        threshold: 0.06,
+        rootMargin: '0px 0px -4% 0px'
       }
     );
 
@@ -84,10 +84,10 @@ export default function Reveal({
 
   const baseClass = useMemo(
     () =>
-      `transition-transform transition-opacity duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+      `transition-[transform,opacity,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
         revealed
-          ? 'translate-y-0 opacity-100'
-          : `${disableTransform ? 'translate-y-0' : initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+          ? 'translate-y-0 opacity-100 blur-0'
+          : `${disableTransform ? 'translate-y-0' : initialTranslateClass} opacity-0 blur-[2px] motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:blur-0 ${
               disableTransform ? '' : 'scale-[0.98] motion-reduce:scale-100'
             }`
       } ${className}`.trim(),
@@ -111,10 +111,10 @@ export default function Reveal({
       {childNodes.map((child, index) => (
         <div
           key={index}
-          className={`transition-transform transition-opacity duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+          className={`transition-[transform,opacity,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             revealed
-              ? 'translate-y-0 opacity-100'
-              : `${disableTransform ? 'translate-y-0' : initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+              ? 'translate-y-0 opacity-100 blur-0'
+              : `${disableTransform ? 'translate-y-0' : initialTranslateClass} opacity-0 blur-[2px] motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:blur-0 ${
                   disableTransform ? '' : 'scale-[0.98] motion-reduce:scale-100'
                 }`
           }`}

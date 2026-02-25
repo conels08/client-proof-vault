@@ -43,7 +43,7 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
-      <Reveal as="section" className="py-20 duration-[800ms] ease-out" delayMs={50} mobileAnimateOnMount>
+      <Reveal as="section" className="py-20" delayMs={50} mobileAnimateOnMount>
         <div className="mx-auto max-w-3xl space-y-8">
           <div className="space-y-4 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
@@ -97,7 +97,7 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
-      <Reveal as="section" className="space-y-5 duration-[800ms] ease-out" delayMs={60} mobileAnimateOnMount>
+      <Reveal as="section" className="space-y-5" delayMs={60} mobileAnimateOnMount>
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold text-slate-900">How it works</h2>
           <p className="max-w-2xl text-sm text-slate-600">A fast workflow designed for freelancers and small teams.</p>
@@ -150,7 +150,7 @@ export default async function HomePage() {
           <p className="max-w-2xl text-sm text-slate-600">Representative frames of dashboard and public proof experiences.</p>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
-          <Reveal noScale delayMs={0} initialTranslateClass="translate-y-4" className="duration-[700ms]">
+          <Reveal noScale delayMs={0} initialTranslateClass="translate-y-4">
             <div className="relative">
               <div className="pointer-events-none absolute -inset-3 -z-10 rounded-2xl bg-brand-100/40 blur-2xl" />
               <Image
@@ -164,7 +164,7 @@ export default async function HomePage() {
           </Reveal>
 
           <div className="grid grid-rows-2 gap-6">
-            <Reveal noScale delayMs={80} initialTranslateClass="translate-y-4" className="duration-[700ms]">
+            <Reveal noScale delayMs={80} initialTranslateClass="translate-y-4">
               <Image
                 src="/landing/dashboard-overview.png"
                 alt="Dashboard overview screenshot"
@@ -173,7 +173,7 @@ export default async function HomePage() {
                 className="rounded-xl border shadow-lg"
               />
             </Reveal>
-            <Reveal noScale delayMs={160} initialTranslateClass="translate-y-4" className="duration-[700ms]">
+            <Reveal noScale delayMs={160} initialTranslateClass="translate-y-4">
               <Image
                 src="/landing/testimonials-system.png"
                 alt="Testimonial system screenshot"
