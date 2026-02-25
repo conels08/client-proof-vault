@@ -9,6 +9,8 @@ type RevealProps = {
   delayMs?: number;
   staggerChildren?: boolean;
   staggerMs?: number;
+  noScale?: boolean;
+  initialTranslateClass?: string;
 };
 
 export default function Reveal({
@@ -17,7 +19,9 @@ export default function Reveal({
   as: Tag = 'div',
   delayMs = 0,
   staggerChildren = false,
-  staggerMs = 80
+  staggerMs = 80,
+  noScale = false,
+  initialTranslateClass = 'translate-y-6'
 }: RevealProps) {
   const [revealed, setRevealed] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -63,10 +67,10 @@ export default function Reveal({
     () =>
       `transition-transform transition-opacity duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
         revealed
-          ? 'translate-y-0 scale-100 opacity-100'
-          : 'translate-y-6 scale-[0.98] opacity-0 motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100'
+          ? 'translate-y-0 opacity-100'
+          : `${initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${noScale ? '' : 'scale-[0.98] motion-reduce:scale-100'}`
       } ${className}`.trim(),
-    [className, revealed]
+    [className, initialTranslateClass, noScale, revealed]
   );
 
   const wrapperStyle = !reduceMotion && delayMs > 0 ? ({ transitionDelay: `${delayMs}ms` } as const) : undefined;
@@ -88,8 +92,8 @@ export default function Reveal({
           key={index}
           className={`transition-transform transition-opacity duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
             revealed
-              ? 'translate-y-0 scale-100 opacity-100'
-              : 'translate-y-6 scale-[0.98] opacity-0 motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100'
+              ? 'translate-y-0 opacity-100'
+              : `${initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${noScale ? '' : 'scale-[0.98] motion-reduce:scale-100'}`
           }`}
           style={!reduceMotion ? ({ transitionDelay: `${delayMs + index * staggerMs}ms` } as const) : undefined}
         >

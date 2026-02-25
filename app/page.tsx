@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Reveal from './components/Reveal';
@@ -148,24 +149,40 @@ export default async function HomePage() {
           <h2 className="text-2xl font-semibold text-slate-900">Product preview</h2>
           <p className="max-w-2xl text-sm text-slate-600">Representative frames of dashboard and public proof experiences.</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {['Dashboard editor', 'Public proof share page'].map((label) => (
-            <article key={label} className="card p-3">
-              <div className="aspect-[16/10] overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100">
-                <div className="space-y-3 p-4">
-                  <div className="h-3 w-24 rounded bg-slate-300" />
-                  <div className="h-7 w-3/4 rounded bg-slate-200" />
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <div className="h-24 rounded bg-white/80 shadow-sm" />
-                    <div className="h-24 rounded bg-white/80 shadow-sm" />
-                    <div className="h-24 rounded bg-white/80 shadow-sm" />
-                    <div className="h-24 rounded bg-white/80 shadow-sm" />
-                  </div>
-                </div>
-              </div>
-              <p className="mt-3 text-sm font-medium text-slate-700">{label}</p>
-            </article>
-          ))}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
+          <Reveal noScale delayMs={0} initialTranslateClass="translate-y-4" className="duration-[700ms]">
+            <div className="relative">
+              <div className="pointer-events-none absolute -inset-3 -z-10 rounded-2xl bg-brand-100/40 blur-2xl" />
+              <Image
+                src="/landing/public-proof-page.png"
+                alt="Public proof page screenshot"
+                width={1600}
+                height={1000}
+                className="rounded-xl border shadow-lg"
+              />
+            </div>
+          </Reveal>
+
+          <div className="grid grid-rows-2 gap-6">
+            <Reveal noScale delayMs={80} initialTranslateClass="translate-y-4" className="duration-[700ms]">
+              <Image
+                src="/landing/dashboard-overview.png"
+                alt="Dashboard overview screenshot"
+                width={1600}
+                height={1000}
+                className="rounded-xl border shadow-lg"
+              />
+            </Reveal>
+            <Reveal noScale delayMs={160} initialTranslateClass="translate-y-4" className="duration-[700ms]">
+              <Image
+                src="/landing/testimonials-system.png"
+                alt="Testimonial system screenshot"
+                width={1600}
+                height={1000}
+                className="rounded-xl border shadow-lg"
+              />
+            </Reveal>
+          </div>
         </div>
       </Reveal>
 
