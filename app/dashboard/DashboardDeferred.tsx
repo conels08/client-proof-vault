@@ -364,11 +364,11 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
 
                 {section.type === 'testimonial' ? (
                   <div className="space-y-4">
-                    <div className="space-y-3">
+                    <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Existing testimonials</h4>
                       {sectionTestimonials.map((testimonial) => (
-                        <div key={testimonial.id} className="rounded-lg border border-slate-200 p-3">
-                          <form action={updateTestimonial} className="space-y-2">
+                        <div key={testimonial.id} className="rounded-lg border border-slate-300 bg-white p-3 shadow-sm ring-1 ring-slate-100">
+                          <form action={updateTestimonial} className="space-y-2 rounded-md border border-slate-200 bg-slate-50/60 p-3">
                             <input type="hidden" name="id" value={testimonial.id} />
                             <label className="space-y-1 text-sm">
                               <span>Name</span>
@@ -394,7 +394,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                             </SubmitButton>
                           </form>
 
-                          <form action={uploadTestimonialAvatar} className="mt-3 space-y-2">
+                          <form action={uploadTestimonialAvatar} className="mt-3 space-y-2 rounded-md border border-slate-200 bg-white p-3">
                             <input type="hidden" name="testimonial_id" value={testimonial.id} />
                             <input type="hidden" name="proof_page_id" value={proofPage.id} />
                             <label className="space-y-1 text-sm">
@@ -421,7 +421,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                             />
                           ) : null}
 
-                          <form action={deleteTestimonial} className="mt-3">
+                          <form action={deleteTestimonial} className="mt-3 border-t border-slate-100 pt-3">
                             <input type="hidden" name="id" value={testimonial.id} />
                             <ConfirmSubmitButton
                               pendingText="Deleting..."
@@ -435,10 +435,10 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                       ))}
                     </div>
 
-                    <details className="rounded-lg border border-slate-200 p-3">
+                    <details className="rounded-lg border border-slate-300 bg-white p-3 shadow-sm">
                       <summary className="cursor-pointer text-sm font-medium text-slate-700">Add new testimonial</summary>
                       {/* Keep create-form field names isolated from edit forms to prevent browser value carryover. */}
-                      <form action={createTestimonial} className="mt-3 space-y-2" autoComplete="off">
+                      <form action={createTestimonial} className="mt-3 space-y-2 rounded-md border border-slate-200 bg-slate-50/50 p-3" autoComplete="off">
                         <input type="hidden" name="proof_section_id" value={section.id} />
                         <label className="space-y-1 text-sm">
                           <span>Name</span>
@@ -469,11 +469,11 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
 
                 {section.type === 'work_example' ? (
                   <div className="space-y-4">
-                    <div className="space-y-3">
+                    <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Existing work examples</h4>
                       {sectionWorkExamples.map((work) => (
-                        <div key={work.id} className="rounded-lg border border-slate-200 p-3">
-                          <form action={updateWorkExample} className="space-y-2">
+                        <div key={work.id} className="rounded-lg border border-slate-300 bg-white p-3 shadow-sm ring-1 ring-slate-100">
+                          <form action={updateWorkExample} className="space-y-2 rounded-md border border-slate-200 bg-slate-50/60 p-3">
                             <input type="hidden" name="id" value={work.id} />
                             <label className="space-y-1 text-sm">
                               <span>Link URL</span>
@@ -502,7 +502,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                             </SubmitButton>
                           </form>
 
-                          <form action={uploadWorkExampleImage} className="mt-3 space-y-2">
+                          <form action={uploadWorkExampleImage} className="mt-3 space-y-2 rounded-md border border-slate-200 bg-white p-3">
                             <input type="hidden" name="work_example_id" value={work.id} />
                             <input type="hidden" name="proof_page_id" value={proofPage.id} />
                             <label className="space-y-1 text-sm">
@@ -543,7 +543,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                             </a>
                           ) : null}
 
-                          <form action={deleteWorkExample} className="mt-3">
+                          <form action={deleteWorkExample} className="mt-3 border-t border-slate-100 pt-3">
                             <input type="hidden" name="id" value={work.id} />
                             <ConfirmSubmitButton
                               pendingText="Deleting..."
@@ -557,9 +557,9 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                       ))}
                     </div>
 
-                    <details className="rounded-lg border border-slate-200 p-3">
+                    <details className="rounded-lg border border-slate-300 bg-white p-3 shadow-sm">
                       <summary className="cursor-pointer text-sm font-medium text-slate-700">Add new work example</summary>
-                      <form action={createWorkExample} className="mt-3 space-y-2" autoComplete="off">
+                      <form action={createWorkExample} className="mt-3 space-y-2 rounded-md border border-slate-200 bg-slate-50/50 p-3" autoComplete="off">
                         <input type="hidden" name="proof_section_id" value={section.id} />
                         <label className="space-y-1 text-sm">
                           <span>Link URL</span>
