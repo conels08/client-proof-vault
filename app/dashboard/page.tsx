@@ -110,17 +110,19 @@ export default async function DashboardPage({
         <DashboardStrength proofPage={proofPage} />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <section className="card space-y-3" aria-busy="true">
-            <div className="h-6 w-52 animate-pulse rounded bg-slate-200" />
-            <div className="h-10 animate-pulse rounded bg-slate-100" />
-            <div className="h-10 animate-pulse rounded bg-slate-100" />
-          </section>
-        }
-      >
-        <DashboardDeferred proofPage={proofPage} />
-      </Suspense>
+      <div className="-mt-2">
+        <Suspense
+          fallback={
+            <section className="card space-y-3" aria-busy="true">
+              <div className="h-6 w-52 animate-pulse rounded bg-slate-200" />
+              <div className="h-10 animate-pulse rounded bg-slate-100" />
+              <div className="h-10 animate-pulse rounded bg-slate-100" />
+            </section>
+          }
+        >
+          <DashboardDeferred proofPage={proofPage} />
+        </Suspense>
+      </div>
     </div>
   );
 }

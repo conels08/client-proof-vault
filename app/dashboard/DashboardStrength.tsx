@@ -94,12 +94,30 @@ export default async function DashboardStrength({ proofPage }: { proofPage: Proo
   const nextBestStep =
     [...strengthItems]
       .filter((item) => !item.complete)
-      .sort((a, b) => a.points - b.points)[0]?.suggestion ?? 'Your page is fully optimized. Keep sharing it.';
+      .sort((a, b) => a.points - b.points)[0]?.suggestion ??
+    'Your page is optimized. Share it in proposals and DMs to increase response rates.';
 
   return (
     <section className="card space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Page Strength</h2>
+      <div className="relative flex items-center justify-between overflow-visible">
+        <div className="relative flex items-center gap-2">
+          <h2 className="text-lg font-semibold">Page Strength</h2>
+          <div className="group relative">
+            <button
+              type="button"
+              aria-label="Learn what Page Strength means"
+              className="inline-flex !h-5 !w-5 items-center justify-center !rounded-full border border-slate-300 !bg-white !px-0 !py-0 text-xs font-semibold !text-slate-500 shadow-none hover:!bg-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            >
+              ?
+            </button>
+            <div
+              role="tooltip"
+              className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-72 -translate-x-1/2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs leading-relaxed text-gray-700 opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
+            >
+              Page Strength measures how complete and persuasive your proof page is. Higher scores increase clarity and conversion confidence.
+            </div>
+          </div>
+        </div>
         <span className="text-sm font-medium text-slate-700">{strengthScore}/10</span>
       </div>
 
