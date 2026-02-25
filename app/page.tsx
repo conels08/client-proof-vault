@@ -15,7 +15,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="space-y-16 pb-10">
+    <div className="space-y-16 pb-0">
       <Reveal as="section" className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-12">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-50 via-white to-slate-50" />
         <div className="relative space-y-6">
@@ -229,18 +229,31 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
-      <Reveal as="section" className="rounded-2xl border border-slate-200 bg-slate-900 px-6 py-10 text-center text-white shadow-sm sm:px-10" delayMs={150}>
-        <h2 className="text-2xl font-semibold sm:text-3xl">Show real proof before the sales call starts.</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
-          Stop sending scattered links. Send one page that closes.
-        </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/signup" className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
-            Get started
-          </Link>
-          <Link href="/p/demo/share" className="rounded-lg border border-slate-600 bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-100 hover:bg-slate-700">
-            View demo
-          </Link>
+      <Reveal
+        as="section"
+        className="-mx-4 mt-24 border-t border-white/5 py-10 text-white sm:-mx-8 sm:py-14"
+        delayMs={150}
+      >
+        <div className="mx-auto max-w-6xl px-4 sm:px-8">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 px-6 py-12 text-center shadow-xl shadow-slate-950/28 sm:px-8 sm:py-16">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(145%_95%_at_14%_0%,rgba(255,255,255,0.08),rgba(255,255,255,0)_62%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.05),rgba(255,255,255,0)_34%,rgba(255,255,255,0.02)_62%,rgba(0,0,0,0)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.02] via-transparent to-black/15" />
+            <div className="relative">
+              <h2 className="text-2xl font-semibold sm:text-3xl">Show real proof before the sales call starts.</h2>
+              <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
+                Stop sending scattered links. Send one page that closes.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Link href="/signup" className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
+                  Get started
+                </Link>
+                <Link href="/p/demo/share" className="rounded-lg border border-slate-600 bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-100 hover:bg-slate-700">
+                  View demo
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </Reveal>
     </div>
