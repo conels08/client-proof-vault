@@ -43,7 +43,7 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
-      <Reveal as="section" className="py-20" delayMs={50}>
+      <Reveal as="section" className="py-20 duration-[800ms] ease-out" delayMs={50} mobileAnimateOnMount>
         <div className="mx-auto max-w-3xl space-y-8">
           <div className="space-y-4 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
@@ -97,7 +97,7 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
-      <Reveal as="section" className="space-y-5" delayMs={60}>
+      <Reveal as="section" className="space-y-5 duration-[800ms] ease-out" delayMs={60} mobileAnimateOnMount>
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold text-slate-900">How it works</h2>
           <p className="max-w-2xl text-sm text-slate-600">A fast workflow designed for freelancers and small teams.</p>

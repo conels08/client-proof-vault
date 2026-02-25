@@ -11,6 +11,7 @@ type RevealProps = {
   staggerMs?: number;
   noScale?: boolean;
   initialTranslateClass?: string;
+  mobileAnimateOnMount?: boolean;
 };
 
 export default function Reveal({
@@ -21,10 +22,12 @@ export default function Reveal({
   staggerChildren = false,
   staggerMs = 80,
   noScale = false,
-  initialTranslateClass = 'translate-y-6'
+  initialTranslateClass = 'translate-y-6',
+  mobileAnimateOnMount = false
 }: RevealProps) {
   const [revealed, setRevealed] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -36,8 +39,22 @@ export default function Reveal({
   }, []);
 
   useEffect(() => {
+    const media = window.matchMedia('(max-width: 639px)');
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
     if (reduceMotion) {
       setRevealed(true);
+      return;
+    }
+
+    if (mobileAnimateOnMount && isMobile) {
+      // On mobile, avoid in-view gating for above-the-fold sections to prevent blank-on-load gaps.
+      requestAnimationFrame(() => setRevealed(true));
       return;
     }
 
@@ -61,16 +78,20 @@ export default function Reveal({
 
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [reduceMotion]);
+  }, [isMobile, mobileAnimateOnMount, reduceMotion]);
+
+  const disableTransform = noScale || (mobileAnimateOnMount && isMobile);
 
   const baseClass = useMemo(
     () =>
       `transition-transform transition-opacity duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
         revealed
           ? 'translate-y-0 opacity-100'
-          : `${initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${noScale ? '' : 'scale-[0.98] motion-reduce:scale-100'}`
+          : `${disableTransform ? 'translate-y-0' : initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+              disableTransform ? '' : 'scale-[0.98] motion-reduce:scale-100'
+            }`
       } ${className}`.trim(),
-    [className, initialTranslateClass, noScale, revealed]
+    [className, disableTransform, initialTranslateClass, revealed]
   );
 
   const wrapperStyle = !reduceMotion && delayMs > 0 ? ({ transitionDelay: `${delayMs}ms` } as const) : undefined;
@@ -93,7 +114,9 @@ export default function Reveal({
           className={`transition-transform transition-opacity duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
             revealed
               ? 'translate-y-0 opacity-100'
-              : `${initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${noScale ? '' : 'scale-[0.98] motion-reduce:scale-100'}`
+              : `${disableTransform ? 'translate-y-0' : initialTranslateClass} opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+                  disableTransform ? '' : 'scale-[0.98] motion-reduce:scale-100'
+                }`
           }`}
           style={!reduceMotion ? ({ transitionDelay: `${delayMs + index * staggerMs}ms` } as const) : undefined}
         >
