@@ -57,6 +57,12 @@ export default async function RootLayout({
           </div>
         </header>
         <main className="mx-auto w-full max-w-5xl px-4 py-8">{children}</main>
+        <footer className="border-t border-slate-200 bg-white/90">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 text-xs text-slate-500">
+            <p>Client Proof Vault</p>
+            <p>{new Date().getFullYear()} All rights reserved.</p>
+          </div>
+        </footer>
       </body>
     </html>
   );
