@@ -144,13 +144,13 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
-      <Reveal as="section" className="space-y-5" delayMs={110}>
+      <Reveal as="section" className="space-y-5" delayMs={110} mobileAnimateOnMount>
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold text-slate-900">Product preview</h2>
           <p className="max-w-2xl text-sm text-slate-600">Representative frames of dashboard and public proof experiences.</p>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
-          <Reveal noScale delayMs={0} initialTranslateClass="translate-y-4">
+          <Reveal noScale delayMs={0} initialTranslateClass="translate-y-4" mobileAnimateOnMount>
             <div className="relative">
               <div className="pointer-events-none absolute -inset-3 -z-10 rounded-2xl bg-brand-100/40 blur-2xl" />
               <Image
@@ -164,7 +164,7 @@ export default async function HomePage() {
           </Reveal>
 
           <div className="grid grid-rows-2 gap-6">
-            <Reveal noScale delayMs={80} initialTranslateClass="translate-y-4">
+            <Reveal noScale delayMs={80} initialTranslateClass="translate-y-4" mobileAnimateOnMount>
               <Image
                 src="/landing/dashboard-overview.png"
                 alt="Dashboard overview screenshot"
@@ -173,7 +173,7 @@ export default async function HomePage() {
                 className="rounded-xl border shadow-lg"
               />
             </Reveal>
-            <Reveal noScale delayMs={160} initialTranslateClass="translate-y-4">
+            <Reveal noScale delayMs={160} initialTranslateClass="translate-y-4" mobileAnimateOnMount>
               <Image
                 src="/landing/testimonials-system.png"
                 alt="Testimonial system screenshot"
