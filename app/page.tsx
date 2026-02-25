@@ -41,6 +41,60 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
+      <Reveal as="section" className="py-20" delayMs={50}>
+        <div className="mx-auto max-w-3xl space-y-8">
+          <div className="space-y-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Your proof is scattered. Your prospects are busy.
+            </h2>
+            <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-600">
+              You&apos;ve done great work — but when it&apos;s time to close the deal, your proof lives everywhere:
+            </p>
+          </div>
+
+          <ul className="mx-auto max-w-xl space-y-2 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            {[
+              'Old emails',
+              'Google Docs',
+              'Random screenshots',
+              'DMs with testimonials',
+              'A portfolio that doesn’t tell the full story'
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm text-slate-700">
+                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mx-auto max-w-2xl text-center text-base leading-relaxed text-slate-700">
+            Prospects won&apos;t dig for proof.
+            <br />
+            If it&apos;s not obvious in seconds, they move on.
+          </p>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-100/70 p-6 shadow-sm sm:p-8">
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">Client Proof Vault gives you one focused page that:</p>
+            <ul className="mt-4 space-y-2">
+              {[
+                'Shows outcomes, not just projects',
+                'Highlights real client testimonials',
+                'Displays metrics that build confidence',
+                'Works perfectly in DMs, proposals, and follow-ups'
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-slate-700">
+                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-500" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-sm font-medium text-slate-800">No digging. No explaining. No scattered links.</p>
+          </div>
+
+          <p className="text-center text-lg font-semibold text-slate-900">Everything your prospect needs — in one link.</p>
+        </div>
+      </Reveal>
+
       <Reveal as="section" className="space-y-5" delayMs={60}>
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold text-slate-900">How it works</h2>
