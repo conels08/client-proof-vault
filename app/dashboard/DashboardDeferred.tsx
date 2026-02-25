@@ -20,8 +20,6 @@ import {
 } from './actions';
 import { ConfirmSubmitButton } from './ConfirmSubmitButton';
 import { ProofPageForm } from './ProofPageForm';
-import { PublicUrlControls } from './PublicUrlControls';
-import { ShareModeControls } from './ShareModeControls';
 import { SubmitButton } from './SubmitButton';
 
 type ProofPage = {
@@ -99,6 +97,32 @@ function sectionLabel(type: ProofSection['type']) {
   if (type === 'work_example') return 'Work Example';
   if (type === 'testimonial') return 'Testimonial';
   return 'Metric';
+}
+
+function sectionSummary(
+  section: ProofSection,
+  sectionTestimonials: Testimonial[],
+  sectionWorkExamples: WorkExample[],
+  sectionMetrics: Metric[]
+) {
+  if (section.type === 'testimonial') {
+    if (sectionTestimonials.length === 0) return 'No testimonials yet';
+    const first = sectionTestimonials[0];
+    return `${sectionTestimonials.length} testimonial${sectionTestimonials.length > 1 ? 's' : ''} • ${first.name}`;
+  }
+
+  if (section.type === 'work_example') {
+    if (sectionWorkExamples.length === 0) return 'No work examples yet';
+    const first = sectionWorkExamples[0];
+    const metric = first.metric_text?.trim();
+    return metric
+      ? `${sectionWorkExamples.length} item${sectionWorkExamples.length > 1 ? 's' : ''} • ${metric}`
+      : `${sectionWorkExamples.length} work item${sectionWorkExamples.length > 1 ? 's' : ''}`;
+  }
+
+  if (sectionMetrics.length === 0) return 'No metrics yet';
+  const first = sectionMetrics[0];
+  return `${sectionMetrics.length} metric${sectionMetrics.length > 1 ? 's' : ''} • ${first.label}: ${first.value}`;
 }
 
 export default async function DashboardDeferred({ proofPage }: { proofPage: ProofPage }) {
@@ -189,59 +213,20 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
     )
   );
 
-  const { count: viewCount } = await supabase
-    .from('page_views')
-    .select('id', { count: 'exact', head: true })
-    .eq('proof_page_id', proofPage.id);
-
-  const { count: ctaClickCount } = await supabase
-    .from('proof_page_events')
-    .select('id', { count: 'exact', head: true })
-    .eq('proof_page_id', proofPage.id)
-    .eq('event_type', 'cta_click');
-
-  const summaryWorkExampleMetrics = workExamples
-    .map((work) => work.metric_text ?? '')
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .slice(0, 2);
-
-  const summaryTestimonial = testimonials[0]
-    ? {
-        quote: testimonials[0].quote,
-        name: testimonials[0].name,
-        roleCompany: testimonials[0].role_company
-      }
-    : null;
-
   return (
     <>
-      <ShareModeControls
-        slug={proofPage.slug}
-        title={proofPage.title}
-        headline={proofPage.headline}
-        bio={proofPage.bio}
-        workExampleMetrics={summaryWorkExampleMetrics}
-        testimonial={summaryTestimonial}
-      />
-
       <section className="card space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Proof page settings</h2>
-          {proofPage.status === 'published' ? (
-            <span className="text-sm text-slate-600">
-              Views: {viewCount ?? 0} (total) · CTA clicks: {ctaClickCount ?? 0}
-            </span>
-          ) : (
-            <span className="text-sm text-slate-500">Publish to start tracking views.</span>
-          )}
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+            {proofPage.status === 'published' ? 'Published' : 'Draft'}
+          </span>
         </div>
         <ProofPageForm proofPage={proofPage} />
       </section>
 
       <section className="card space-y-4">
         <h2 className="text-lg font-semibold">Collect Testimonials</h2>
-        <PublicUrlControls slug={proofPage.slug} pathPrefix="/r" label="Request Link" />
 
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-slate-700">Pending requests</h3>
@@ -301,7 +286,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
       </section>
 
       <section className="card space-y-4">
-        <h2 className="text-lg font-semibold">Sections</h2>
+        <h2 className="text-lg font-semibold">Sections Editor</h2>
 
         <form action={createSection} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
           <input type="hidden" name="proof_page_id" value={proofPage.id} />
@@ -326,45 +311,56 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
             const sectionMetrics = metrics.filter((m) => m.proof_section_id === section.id);
 
             return (
-              <article key={section.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-slate-800">{sectionLabel(section.type)}</h3>
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">#{section.position}</span>
+              <details key={section.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm open:bg-white">
+                <summary className="cursor-pointer list-none">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-slate-900">{sectionLabel(section.type)}</h3>
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">#{section.position}</span>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        {sectionSummary(section, sectionTestimonials, sectionWorkExamples, sectionMetrics)}
+                      </p>
+                    </div>
+                    <span className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700">Edit</span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <form action={moveSection}>
-                      <input type="hidden" name="section_id" value={section.id} />
-                      <input type="hidden" name="direction" value="up" />
-                      <SubmitButton
-                        pendingText="Moving..."
-                        className="border border-slate-300 bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50"
-                      >
-                        ↑ Up
-                      </SubmitButton>
-                    </form>
-                    <form action={moveSection}>
-                      <input type="hidden" name="section_id" value={section.id} />
-                      <input type="hidden" name="direction" value="down" />
-                      <SubmitButton
-                        pendingText="Moving..."
-                        className="border border-slate-300 bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50"
-                      >
-                        ↓ Down
-                      </SubmitButton>
-                    </form>
-                    <form action={deleteSection}>
-                      <input type="hidden" name="section_id" value={section.id} />
-                      <ConfirmSubmitButton
-                        pendingText="Deleting..."
-                        confirmMessage="Delete this entire section and all its items? This cannot be undone."
-                        className="border border-red-200 bg-white px-3 py-1.5 text-red-700 hover:bg-red-50"
-                      >
-                        Delete
-                      </ConfirmSubmitButton>
-                    </form>
-                  </div>
+                </summary>
+
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
+                  <form action={moveSection}>
+                    <input type="hidden" name="section_id" value={section.id} />
+                    <input type="hidden" name="direction" value="up" />
+                    <SubmitButton
+                      pendingText="Moving..."
+                      className="border border-slate-300 bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+                    >
+                      ↑ Up
+                    </SubmitButton>
+                  </form>
+                  <form action={moveSection}>
+                    <input type="hidden" name="section_id" value={section.id} />
+                    <input type="hidden" name="direction" value="down" />
+                    <SubmitButton
+                      pendingText="Moving..."
+                      className="border border-slate-300 bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+                    >
+                      ↓ Down
+                    </SubmitButton>
+                  </form>
+                  <form action={deleteSection}>
+                    <input type="hidden" name="section_id" value={section.id} />
+                    <ConfirmSubmitButton
+                      pendingText="Deleting..."
+                      confirmMessage="Delete this entire section and all its items? This cannot be undone."
+                      className="border border-red-200 bg-white px-3 py-1.5 text-red-700 hover:bg-red-50"
+                    >
+                      Delete
+                    </ConfirmSubmitButton>
+                  </form>
                 </div>
+
+                <div className="mt-4">
 
                 {section.type === 'testimonial' ? (
                   <div className="space-y-4">
@@ -647,7 +643,8 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                     </details>
                   </div>
                 ) : null}
-              </article>
+                </div>
+              </details>
             );
           })}
 

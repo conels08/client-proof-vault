@@ -7,9 +7,10 @@ type PublicUrlControlsProps = {
   slug: string;
   pathPrefix?: '/p' | '/r';
   label?: string;
+  helperText?: string;
 };
 
-export function PublicUrlControls({ slug, pathPrefix = '/p', label = 'Public URL' }: PublicUrlControlsProps) {
+export function PublicUrlControls({ slug, pathPrefix = '/p', label = 'Public URL', helperText }: PublicUrlControlsProps) {
   const [copied, setCopied] = useState(false);
   const relativePath = `${pathPrefix}/${slug}`;
 
@@ -23,7 +24,19 @@ export function PublicUrlControls({ slug, pathPrefix = '/p', label = 'Public URL
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
       <span>
-        {label}:{' '}
+        <span className="inline-flex items-center gap-1">
+          {label}
+          {helperText ? (
+            <span
+              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-300 bg-white text-[10px] font-semibold text-slate-500"
+              title={helperText}
+              aria-label={helperText}
+            >
+              i
+            </span>
+          ) : null}
+          :
+        </span>{' '}
         <span className="font-medium text-slate-800">{relativePath}</span>
       </span>
       <button

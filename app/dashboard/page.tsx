@@ -6,6 +6,7 @@ import { PublicUrlControls } from './PublicUrlControls';
 import { Toast } from './Toast';
 import DashboardStrength from './DashboardStrength';
 import DashboardDeferred from './DashboardDeferred';
+import DashboardSidebar from './DashboardSidebar';
 
 type ProofPage = {
   id: string;
@@ -92,25 +93,38 @@ export default async function DashboardPage({
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="text-sm text-slate-600">Manage your proof page content and publish when ready.</p>
-        <PublicUrlControls slug={proofPage.slug} />
       </div>
 
-      <Suspense
-        fallback={
-          <section className="card space-y-4" aria-busy="true">
-            <div className="h-6 w-44 animate-pulse rounded bg-slate-200" />
-            <div className="h-2 w-full animate-pulse rounded bg-slate-200" />
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="h-10 animate-pulse rounded bg-slate-100" />
-              <div className="h-10 animate-pulse rounded bg-slate-100" />
-            </div>
-          </section>
-        }
-      >
-        <DashboardStrength proofPage={proofPage} />
-      </Suspense>
+      <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
+        <div className="space-y-4 lg:col-span-4 lg:sticky lg:top-6">
+          <Suspense
+            fallback={
+              <section className="card space-y-3" aria-busy="true">
+                <div className="h-4 w-28 animate-pulse rounded bg-slate-200" />
+                <div className="h-10 animate-pulse rounded bg-slate-100" />
+                <div className="h-10 animate-pulse rounded bg-slate-100" />
+              </section>
+            }
+          >
+            <DashboardSidebar proofPage={proofPage} />
+          </Suspense>
+          <Suspense
+            fallback={
+              <section className="card space-y-4" aria-busy="true">
+                <div className="h-6 w-44 animate-pulse rounded bg-slate-200" />
+                <div className="h-2 w-full animate-pulse rounded bg-slate-200" />
+                <div className="grid gap-2 md:grid-cols-2">
+                  <div className="h-10 animate-pulse rounded bg-slate-100" />
+                  <div className="h-10 animate-pulse rounded bg-slate-100" />
+                </div>
+              </section>
+            }
+          >
+            <DashboardStrength proofPage={proofPage} />
+          </Suspense>
+        </div>
 
-      <div className="-mt-2">
+        <div className="space-y-6 lg:col-span-8">
         <Suspense
           fallback={
             <section className="card space-y-3" aria-busy="true">
@@ -122,6 +136,7 @@ export default async function DashboardPage({
         >
           <DashboardDeferred proofPage={proofPage} />
         </Suspense>
+        </div>
       </div>
     </div>
   );
