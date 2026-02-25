@@ -24,10 +24,10 @@ export default async function HomePage() {
           <div className="max-w-3xl space-y-4">
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">Show proof. Build trust. Win clients.</h1>
             <p className="max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-              Create one focused proof page, collect real testimonials, and share a conversion-ready link that helps prospects say yes faster.
+              Turn your best work into one focused proof page that helps prospects say yes — faster.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start">
             <Link href="/signup" className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">
               Get started
             </Link>
@@ -38,6 +38,7 @@ export default async function HomePage() {
               View demo
             </Link>
           </div>
+          <p className="mt-3 text-center text-sm text-muted-foreground sm:text-left">Free to start. No credit card required.</p>
         </div>
       </Reveal>
 
@@ -52,7 +53,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <ul className="mx-auto max-w-xl space-y-2 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <ul className="mx-auto max-w-xl space-y-4 rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
             {[
               'Old emails',
               'Google Docs',
@@ -60,21 +61,21 @@ export default async function HomePage() {
               'DMs with testimonials',
               'A portfolio that doesn’t tell the full story'
             ].map((item) => (
-              <li key={item} className="flex items-start gap-3 text-sm text-slate-700">
+              <li key={item} className="flex items-start gap-3 text-sm text-foreground">
                 <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
                 <span>{item}</span>
               </li>
             ))}
           </ul>
 
-          <p className="mx-auto max-w-2xl text-center text-base leading-relaxed text-slate-700">
+          <p className="mx-auto mt-12 mb-6 max-w-2xl text-center text-base font-medium leading-snug text-slate-700">
             Prospects won&apos;t dig for proof.
             <br />
             If it&apos;s not obvious in seconds, they move on.
           </p>
 
           <div className="rounded-2xl border border-slate-200 bg-slate-100/70 p-6 shadow-sm sm:p-8">
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">Client Proof Vault gives you one focused page that:</p>
+            <p className="text-sm font-semibold uppercase text-slate-600">Client Proof Vault gives you one focused page that:</p>
             <ul className="mt-4 space-y-2">
               {[
                 'Shows outcomes, not just projects',
@@ -88,7 +89,7 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-5 text-sm font-medium text-slate-800">No digging. No explaining. No scattered links.</p>
+            <p className="mt-6 text-lg font-semibold text-foreground">No digging. No explaining. No scattered links.</p>
           </div>
 
           <p className="text-center text-lg font-semibold text-slate-900">Everything your prospect needs — in one link.</p>
@@ -106,7 +107,10 @@ export default async function HomePage() {
             ['2', 'Collect testimonials', 'Share a request link after delivery and review submissions before publishing.'],
             ['3', 'Share and track', 'Send your public/share link and track views plus CTA clicks from one place.']
           ].map(([step, title, body]) => (
-            <article key={step} className="card space-y-3">
+            <article
+              key={step}
+              className="card space-y-3 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:shadow-lg"
+            >
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
                 {step}
               </span>
@@ -117,12 +121,12 @@ export default async function HomePage() {
         </div>
       </Reveal>
 
-      <Reveal as="section" className="space-y-5" delayMs={90} staggerChildren staggerMs={70}>
+      <Reveal as="section" className="space-y-5" delayMs={90} staggerChildren>
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold text-slate-900">Everything you need to prove value</h2>
           <p className="max-w-2xl text-sm text-slate-600">Built to make your proof easy to send and hard to ignore.</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-x-4 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
           {[
             ['Share Mode', 'A condensed, mobile-first page for fast prospect scanning and sharing.'],
             ['Testimonial Requests', 'Collect client quotes through a public request link and moderate in dashboard.'],
@@ -133,7 +137,7 @@ export default async function HomePage() {
           ].map(([title, body]) => (
             <article key={title} className="card space-y-2">
               <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-              <p className="text-sm leading-relaxed text-slate-600">{body}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
             </article>
           ))}
         </div>
@@ -195,6 +199,7 @@ export default async function HomePage() {
             <h3 className="text-lg font-semibold text-slate-900">Free</h3>
             <p className="text-sm text-slate-600">Create one proof page, collect testimonials, and share your link.</p>
             <p className="text-sm font-medium text-slate-700">$0 / month</p>
+            <p className="mt-2 text-sm text-muted-foreground">No credit card required</p>
           </article>
           <article className="card space-y-3 border-brand-200 bg-brand-50/40">
             <h3 className="text-lg font-semibold text-slate-900">Pro</h3>
@@ -210,7 +215,7 @@ export default async function HomePage() {
       <Reveal as="section" className="rounded-2xl border border-slate-200 bg-slate-900 px-6 py-10 text-center text-white shadow-sm sm:px-10" delayMs={150}>
         <h2 className="text-2xl font-semibold sm:text-3xl">Show real proof before the sales call starts.</h2>
         <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
-          Launch your proof page in minutes and use one share link across proposals, DMs, and follow-ups.
+          Stop sending scattered links. Send one page that closes.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link href="/signup" className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
