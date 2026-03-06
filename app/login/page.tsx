@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { login } from './actions';
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams
 }: {
-  searchParams?: { error?: string; next?: string };
+  searchParams?: Promise<{ error?: string; next?: string }>;
 }) {
-  const error = searchParams?.error;
-  const nextPath = searchParams?.next ?? '/dashboard';
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const error = resolvedSearchParams?.error;
+  const nextPath = resolvedSearchParams?.next ?? '/dashboard';
 
   return (
     <div className="mx-auto max-w-md space-y-4">

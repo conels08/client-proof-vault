@@ -30,7 +30,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 async function ensureProofPage(
-  supabase: ReturnType<typeof createServerSupabaseClient>,
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   userId: string,
   email: string | null
 ): Promise<ProofPage> {
@@ -73,9 +73,9 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardPage({
   searchParams
 }: {
-  searchParams?: { toast?: string | string[]; toastType?: string | string[] };
+  searchParams?: Promise<{ toast?: string | string[]; toastType?: string | string[] }>;
 }) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -84,9 +84,10 @@ export default async function DashboardPage({
     redirect('/login');
   }
 
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const proofPage = await ensureProofPage(supabase, user.id, user.email ?? null);
-  const toastMessage = getParam(searchParams?.toast);
-  const toastType = getParam(searchParams?.toastType) === 'error' ? 'error' : 'success';
+  const toastMessage = getParam(resolvedSearchParams?.toast);
+  const toastType = getParam(resolvedSearchParams?.toastType) === 'error' ? 'error' : 'success';
 
   return (
     <div className="space-y-6 pb-10">

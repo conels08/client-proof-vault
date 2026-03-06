@@ -47,7 +47,7 @@ type Metric = {
 };
 
 async function signedUrl(
-  supabase: ReturnType<typeof createServerSupabaseClient>,
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   path: string | null,
   transform?: { width: number; height?: number }
 ) {
@@ -58,13 +58,14 @@ async function signedUrl(
 
 export const dynamic = 'force-dynamic';
 
-export default async function PublicProofPage({ params }: { params: { slug: string } }) {
-  const supabase = createServerSupabaseClient();
+export default async function PublicProofPage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  const supabase = await createServerSupabaseClient();
 
   const { data: page } = await supabase
     .from('proof_pages')
     .select('id, title, headline, bio, slug, theme, accent_color, avatar_url')
-    .eq('slug', params.slug)
+    .eq('slug', resolvedParams.slug)
     .maybeSingle();
 
   if (!page) {
@@ -199,7 +200,7 @@ export default async function PublicProofPage({ params }: { params: { slug: stri
                         />
                       ) : null}
                       <div className="space-y-1">
-                        <p className="text-sm italic">"{item.quote}"</p>
+                        <p className="text-sm italic">&ldquo;{item.quote}&rdquo;</p>
                         <p className="text-sm font-medium">
                           {item.name}
                           {item.role_company ? `, ${item.role_company}` : ''}

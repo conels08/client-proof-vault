@@ -43,7 +43,7 @@ type Metric = {
 };
 
 async function signedUrl(
-  supabase: ReturnType<typeof createServerSupabaseClient>,
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   path: string | null,
   transform?: { width: number; height?: number }
 ) {
@@ -54,13 +54,14 @@ async function signedUrl(
 
 export const dynamic = 'force-dynamic';
 
-export default async function PublicProofSharePage({ params }: { params: { slug: string } }) {
-  const supabase = createServerSupabaseClient();
+export default async function PublicProofSharePage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  const supabase = await createServerSupabaseClient();
 
   const { data: page } = await supabase
     .from('proof_pages')
     .select('id, title, headline, slug, theme, accent_color, cta_enabled, cta_label, cta_url')
-    .eq('slug', params.slug)
+    .eq('slug', resolvedParams.slug)
     .eq('status', 'published')
     .maybeSingle();
 
@@ -221,7 +222,7 @@ export default async function PublicProofSharePage({ params }: { params: { slug:
                 />
               ) : null}
               <div className="space-y-1">
-                <p className="text-sm italic">"{firstTestimonial.quote}"</p>
+                <p className="text-sm italic">&ldquo;{firstTestimonial.quote}&rdquo;</p>
                 <p className="text-sm font-medium">
                   {firstTestimonial.name}
                   {firstTestimonial.role_company ? `, ${firstTestimonial.role_company}` : ''}

@@ -18,7 +18,7 @@ type Testimonial = {
 };
 
 export default async function DashboardSidebar({ proofPage }: { proofPage: ProofPage }) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: sectionsData } = await supabase
     .from('proof_sections')

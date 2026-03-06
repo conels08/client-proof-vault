@@ -19,19 +19,20 @@ function normalizeCtaTarget(raw: string) {
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const supabase = createServerSupabaseClient();
+  const resolvedParams = await params;
+  const supabase = await createServerSupabaseClient();
 
   const { data: page } = await supabase
     .from('proof_pages')
     .select('id, slug, cta_enabled, cta_url')
-    .eq('slug', params.slug)
+    .eq('slug', resolvedParams.slug)
     .eq('status', 'published')
     .maybeSingle();
 
   if (!page || !page.cta_enabled || !page.cta_url) {
-    return NextResponse.redirect(new URL(`/p/${params.slug}/share`, request.url));
+    return NextResponse.redirect(new URL(`/p/${resolvedParams.slug}/share`, request.url));
   }
 
   await supabase.from('proof_page_events').insert({
@@ -41,7 +42,7 @@ export async function GET(
 
   const target = normalizeCtaTarget(page.cta_url);
   if (!target) {
-    return NextResponse.redirect(new URL(`/p/${params.slug}/share`, request.url));
+    return NextResponse.redirect(new URL(`/p/${resolvedParams.slug}/share`, request.url));
   }
 
   return new Response(null, {

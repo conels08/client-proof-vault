@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { signup } from './actions';
 
-export default function SignupPage({ searchParams }: { searchParams?: { error?: string } }) {
-  const error = searchParams?.error;
+export default async function SignupPage({ searchParams }: { searchParams?: Promise<{ error?: string }> }) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const error = resolvedSearchParams?.error;
 
   return (
     <div className="mx-auto max-w-md space-y-4">

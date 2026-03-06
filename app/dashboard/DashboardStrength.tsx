@@ -16,7 +16,7 @@ type StrengthItem = {
 };
 
 export default async function DashboardStrength({ proofPage }: { proofPage: ProofPage }) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: sectionRows } = await supabase
     .from('proof_sections')
