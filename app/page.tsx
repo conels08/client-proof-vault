@@ -3,8 +3,15 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Reveal from './components/Reveal';
+import { joinWaitlist } from './waitlist/actions';
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams
+}: {
+  searchParams?: Promise<{ waitlist?: string }>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const waitlistStatus = resolvedSearchParams?.waitlist ?? '';
   const supabase = await createServerSupabaseClient();
   const {
     data: { user }
@@ -222,9 +229,42 @@ export default async function HomePage() {
             <h3 className="text-lg font-semibold text-slate-900">Pro</h3>
             <p className="text-sm text-slate-600">Advanced analytics and additional polish tools for conversion-focused teams.</p>
             <p className="text-sm font-medium text-slate-700">Pro coming soon</p>
-            <Link href="/signup" className="inline-flex rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
-              Join waitlist
-            </Link>
+            <form action={joinWaitlist} className="space-y-2">
+              <input type="hidden" name="started_at" value={Date.now()} />
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                className="hidden"
+                aria-hidden="true"
+              />
+              <label className="block space-y-1 text-sm">
+                <span className="text-slate-700">Email for Pro updates</span>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                  className="w-full"
+                />
+              </label>
+              <button type="submit" className="inline-flex rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+                Join waitlist
+              </button>
+            </form>
+            {waitlistStatus === 'success' ? (
+              <p className="text-xs text-emerald-700">You are on the waitlist.</p>
+            ) : null}
+            {waitlistStatus === 'invalid' ? (
+              <p className="text-xs text-red-700">Enter a valid email address.</p>
+            ) : null}
+            {waitlistStatus === 'rate_limited' ? (
+              <p className="text-xs text-red-700">Too many attempts. Try again in a few minutes.</p>
+            ) : null}
+            {waitlistStatus === 'error' ? (
+              <p className="text-xs text-red-700">Could not join waitlist right now. Please try again.</p>
+            ) : null}
           </article>
         </div>
       </Reveal>
