@@ -13,12 +13,36 @@ function isValidHexColor(value: string) {
   return /^#[0-9A-Fa-f]{6}$/.test(value);
 }
 
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif'
+]);
+
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
+
+function validateImageFile(file: File | null, label: string): asserts file is File {
+  if (!file || file.size === 0) {
+    redirectDashboard(`Please select a ${label} image.`, 'error');
+  }
+
+  if (file.size > MAX_UPLOAD_BYTES) {
+    redirectDashboard('Image is too large. Maximum size is 8MB.', 'error');
+  }
+
+  if (!ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
+    redirectDashboard('Unsupported image format. Use JPG, PNG, WEBP, GIF, or AVIF.', 'error');
+  }
+}
+
 function redirectDashboard(message: string, type: 'success' | 'error'): never {
   redirect(`/dashboard?toast=${encodeURIComponent(message)}&toastType=${type}`);
 }
 
 async function uploadThumbnailVariant(params: {
-  supabase: ReturnType<typeof createServerSupabaseClient>;
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>;
   bucket: string;
   originalPath: string;
   thumbnailPath: string;
@@ -52,7 +76,7 @@ async function uploadThumbnailVariant(params: {
 }
 
 async function requireUser() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -101,7 +125,7 @@ export async function updateProofPage(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -113,9 +137,7 @@ export async function uploadProofPageAvatar(formData: FormData) {
   const proofPageId = String(formData.get('proof_page_id') ?? '');
   const file = formData.get('avatar') as File | null;
 
-  if (!file || file.size === 0) {
-    redirectDashboard('Please select an avatar image.', 'error');
-  }
+  validateImageFile(file, 'profile avatar');
 
   const ext = file.name.split('.').pop() || 'jpg';
   const baseName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}`;
@@ -127,7 +149,7 @@ export async function uploadProofPageAvatar(formData: FormData) {
     cacheControl: '31536000'
   });
   if (uploadError) {
-    redirectDashboard(uploadError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const updateWithTimestamp = await supabase
@@ -137,7 +159,7 @@ export async function uploadProofPageAvatar(formData: FormData) {
   if (updateWithTimestamp.error) {
     const fallbackUpdate = await supabase.from('proof_pages').update({ avatar_url: objectPath }).eq('id', proofPageId);
     if (fallbackUpdate.error) {
-      redirectDashboard(fallbackUpdate.error.message, 'error');
+      redirectDashboard('We could not save that change. Please try again.', 'error');
     }
   }
 
@@ -159,7 +181,7 @@ export async function removeProofPageAvatar(formData: FormData) {
   if (updateWithTimestamp.error) {
     const fallbackUpdate = await supabase.from('proof_pages').update({ avatar_url: null }).eq('id', proofPageId);
     if (fallbackUpdate.error) {
-      redirectDashboard(fallbackUpdate.error.message, 'error');
+      redirectDashboard('We could not save that change. Please try again.', 'error');
     }
   }
 
@@ -191,7 +213,7 @@ export async function createSection(formData: FormData) {
     .insert({ proof_page_id: proofPageId, type, position: nextPosition });
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -233,7 +255,7 @@ export async function moveSection(formData: FormData) {
 
   const { error: firstSwapError } = await supabase.from('proof_sections').update({ position: -1 }).eq('id', current.id);
   if (firstSwapError) {
-    redirectDashboard(firstSwapError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const { error: secondSwapError } = await supabase
@@ -241,7 +263,7 @@ export async function moveSection(formData: FormData) {
     .update({ position: current.position })
     .eq('id', neighbor.id);
   if (secondSwapError) {
-    redirectDashboard(secondSwapError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const { error: thirdSwapError } = await supabase
@@ -249,7 +271,7 @@ export async function moveSection(formData: FormData) {
     .update({ position: neighbor.position })
     .eq('id', current.id);
   if (thirdSwapError) {
-    redirectDashboard(thirdSwapError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -262,7 +284,7 @@ export async function deleteSection(formData: FormData) {
 
   const { error } = await supabase.from('proof_sections').delete().eq('id', sectionId);
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -284,7 +306,7 @@ export async function createTestimonial(formData: FormData) {
   });
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -305,7 +327,7 @@ export async function updateTestimonial(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -318,7 +340,7 @@ export async function deleteTestimonial(formData: FormData) {
 
   const { error } = await supabase.from('testimonials').delete().eq('id', id);
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -331,9 +353,7 @@ export async function uploadTestimonialAvatar(formData: FormData) {
   const proofPageId = String(formData.get('proof_page_id') ?? '');
   const file = formData.get('avatar') as File | null;
 
-  if (!file || file.size === 0) {
-    redirectDashboard('Please select an avatar image.', 'error');
-  }
+  validateImageFile(file, 'testimonial avatar');
 
   const ext = file.name.split('.').pop() || 'jpg';
   const baseName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}`;
@@ -347,7 +367,7 @@ export async function uploadTestimonialAvatar(formData: FormData) {
     cacheControl: '31536000'
   });
   if (uploadError) {
-    redirectDashboard(uploadError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const { error: thumbnailError } = await uploadThumbnailVariant({
@@ -361,7 +381,7 @@ export async function uploadTestimonialAvatar(formData: FormData) {
   });
 
   if (thumbnailError) {
-    redirectDashboard(thumbnailError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const updateWithThumb = await supabase
@@ -371,7 +391,7 @@ export async function uploadTestimonialAvatar(formData: FormData) {
   if (updateWithThumb.error) {
     const fallbackUpdate = await supabase.from('testimonials').update({ avatar_url: objectPath }).eq('id', testimonialId);
     if (fallbackUpdate.error) {
-      redirectDashboard(fallbackUpdate.error.message, 'error');
+      redirectDashboard('We could not save that change. Please try again.', 'error');
     }
   }
 
@@ -391,7 +411,7 @@ export async function createWorkExample(formData: FormData) {
   });
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -412,7 +432,7 @@ export async function updateWorkExample(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -425,7 +445,7 @@ export async function deleteWorkExample(formData: FormData) {
 
   const { error } = await supabase.from('work_examples').delete().eq('id', id);
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -438,9 +458,7 @@ export async function uploadWorkExampleImage(formData: FormData) {
   const proofPageId = String(formData.get('proof_page_id') ?? '');
   const file = formData.get('image') as File | null;
 
-  if (!file || file.size === 0) {
-    redirectDashboard('Please select an image file.', 'error');
-  }
+  validateImageFile(file, 'work example');
 
   const ext = file.name.split('.').pop() || 'jpg';
   const baseName = `${randomUUID()}-${cleanFileName(file.name.replace(`.${ext}`, ''))}`;
@@ -454,7 +472,7 @@ export async function uploadWorkExampleImage(formData: FormData) {
     cacheControl: '31536000'
   });
   if (uploadError) {
-    redirectDashboard(uploadError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const { error: thumbnailError } = await uploadThumbnailVariant({
@@ -468,7 +486,7 @@ export async function uploadWorkExampleImage(formData: FormData) {
   });
 
   if (thumbnailError) {
-    redirectDashboard(thumbnailError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const updateWithThumb = await supabase
@@ -478,7 +496,7 @@ export async function uploadWorkExampleImage(formData: FormData) {
   if (updateWithThumb.error) {
     const fallbackUpdate = await supabase.from('work_examples').update({ image_url: objectPath }).eq('id', workExampleId);
     if (fallbackUpdate.error) {
-      redirectDashboard(fallbackUpdate.error.message, 'error');
+      redirectDashboard('We could not save that change. Please try again.', 'error');
     }
   }
 
@@ -497,7 +515,7 @@ export async function createMetric(formData: FormData) {
   });
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -517,7 +535,7 @@ export async function updateMetric(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -530,7 +548,7 @@ export async function deleteMetric(formData: FormData) {
 
   const { error } = await supabase.from('metrics').delete().eq('id', id);
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -588,7 +606,7 @@ export async function approveTestimonialRequest(formData: FormData) {
       .single();
 
     if (sectionError || !newSection) {
-      redirectDashboard(sectionError?.message || 'Failed to create testimonial section.', 'error');
+      redirectDashboard('We could not save that change. Please try again.', 'error');
     }
 
     testimonialSectionId = newSection.id;
@@ -603,7 +621,7 @@ export async function approveTestimonialRequest(formData: FormData) {
   });
 
   if (insertError) {
-    redirectDashboard(insertError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   const { error: updateError } = await supabase
@@ -612,7 +630,7 @@ export async function approveTestimonialRequest(formData: FormData) {
     .eq('id', request.id);
 
   if (updateError) {
-    redirectDashboard(updateError.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');
@@ -630,7 +648,7 @@ export async function rejectTestimonialRequest(formData: FormData) {
     .eq('id', requestId);
 
   if (error) {
-    redirectDashboard(error.message, 'error');
+    redirectDashboard('We could not save that change. Please try again.', 'error');
   }
 
   revalidatePath('/dashboard');

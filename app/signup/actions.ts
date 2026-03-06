@@ -7,11 +7,11 @@ export async function signup(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    redirect(`/signup?error=${encodeURIComponent(error.message)}`);
+    redirect(`/signup?error=${encodeURIComponent('Sign-up failed. Please verify your details and try again.')}`);
   }
 
   redirect('/dashboard');

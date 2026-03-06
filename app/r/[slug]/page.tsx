@@ -15,15 +15,17 @@ export default async function TestimonialRequestPage({
   params,
   searchParams
 }: {
-  params: { slug: string };
-  searchParams?: { submitted?: string; error?: string };
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ submitted?: string; error?: string }>;
 }) {
-  const supabase = createServerSupabaseClient();
+  const resolvedParams = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const supabase = await createServerSupabaseClient();
 
   const { data: page } = await supabase
     .from('proof_pages')
     .select('id, title, headline, slug')
-    .eq('slug', params.slug)
+    .eq('slug', resolvedParams.slug)
     .maybeSingle();
 
   if (!page) {
@@ -32,7 +34,7 @@ export default async function TestimonialRequestPage({
 
   const proofPage = page as ProofPage;
 
-  if (searchParams?.submitted === '1') {
+  if (resolvedSearchParams?.submitted === '1') {
     return (
       <div className="mx-auto max-w-xl rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
         <h1 className="text-2xl font-semibold text-slate-900">Thank you</h1>
@@ -50,13 +52,22 @@ export default async function TestimonialRequestPage({
         </p>
       </div>
 
-      {searchParams?.error ? (
-        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{searchParams.error}</p>
+      {resolvedSearchParams?.error ? (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{resolvedSearchParams.error}</p>
       ) : null}
 
       <form action={submitTestimonialRequest} className="space-y-3">
         <input type="hidden" name="proof_page_id" value={proofPage.id} />
         <input type="hidden" name="slug" value={proofPage.slug} />
+        <input type="hidden" name="started_at" value={Date.now()} />
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          className="hidden"
+          aria-hidden="true"
+        />
 
         <label className="block space-y-1 text-sm">
           <span>Name</span>

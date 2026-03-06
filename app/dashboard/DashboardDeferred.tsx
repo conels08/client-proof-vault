@@ -85,7 +85,7 @@ type TestimonialRequest = {
   created_at: string;
 };
 
-type SupabaseClient = ReturnType<typeof createServerSupabaseClient>;
+type SupabaseClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
 
 async function signedUrl(
   supabase: SupabaseClient,
@@ -130,7 +130,7 @@ function sectionSummary(
 }
 
 export default async function DashboardDeferred({ proofPage }: { proofPage: ProofPage }) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: sectionsData } = await supabase
     .from('proof_sections')
@@ -276,7 +276,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                   <p className="text-xs text-slate-500">{new Date(request.created_at).toLocaleString()}</p>
                 </div>
                 {request.role_company ? <p className="text-sm text-slate-600">{request.role_company}</p> : null}
-                <p className="mt-2 text-sm text-slate-800">"{request.quote}"</p>
+                <p className="mt-2 text-sm text-slate-800">&ldquo;{request.quote}&rdquo;</p>
                 <div className="mt-3 flex gap-2">
                   <form action={approveTestimonialRequest}>
                     <input type="hidden" name="request_id" value={request.id} />
@@ -311,7 +311,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                     <p className="text-xs text-slate-500">{new Date(request.created_at).toLocaleString()}</p>
                   </div>
                   {request.role_company ? <p className="text-sm text-slate-600">{request.role_company}</p> : null}
-                  <p className="mt-2 text-sm text-slate-800">"{request.quote}"</p>
+                  <p className="mt-2 text-sm text-slate-800">&ldquo;{request.quote}&rdquo;</p>
                 </article>
               ))
             )}
@@ -571,6 +571,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
                             <a
                               href={imageUrls[work.id] ?? ''}
                               target="_blank"
+                              rel="noopener noreferrer"
                               className="mt-2 inline-block text-xs text-brand-700 hover:underline"
                             >
                               Open full size
