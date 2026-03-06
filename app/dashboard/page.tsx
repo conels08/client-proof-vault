@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { generateUniqueSlug } from '@/lib/slug';
-import { PublicUrlControls } from './PublicUrlControls';
+import { getUserPlan, type UserPlan } from '@/lib/billing';
 import { Toast } from './Toast';
 import DashboardStrength from './DashboardStrength';
 import DashboardDeferred from './DashboardDeferred';
@@ -86,8 +86,10 @@ export default async function DashboardPage({
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const proofPage = await ensureProofPage(supabase, user.id, user.email ?? null);
+  const plan = await getUserPlan(supabase, user.id);
   const toastMessage = getParam(resolvedSearchParams?.toast);
   const toastType = getParam(resolvedSearchParams?.toastType) === 'error' ? 'error' : 'success';
+  const billingStatus = getParam((resolvedSearchParams as { billing?: string } | undefined)?.billing);
 
   return (
     <div className="space-y-6 pb-10">
@@ -109,7 +111,7 @@ export default async function DashboardPage({
               </section>
             }
           >
-            <DashboardSidebar proofPage={proofPage} />
+            <DashboardSidebar proofPage={proofPage} plan={plan as UserPlan} billingStatus={billingStatus} />
           </Suspense>
           <Suspense
             fallback={
@@ -137,7 +139,7 @@ export default async function DashboardPage({
             </section>
           }
         >
-          <DashboardDeferred proofPage={proofPage} />
+          <DashboardDeferred proofPage={proofPage} plan={plan as UserPlan} />
         </Suspense>
         </div>
       </div>

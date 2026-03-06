@@ -1,21 +1,9 @@
-'use server';
-
-import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const WAITLIST_WINDOW_MS = 10 * 60 * 1000;
 const WAITLIST_MAX_REQUESTS = 10;
 const waitlistAttempts = new Map<string, number[]>();
-
-async function getClientIp() {
-  const h = await headers();
-  const forwarded = h.get('x-forwarded-for');
-  if (forwarded) {
-    return forwarded.split(',')[0]?.trim() || 'unknown';
-  }
-  return h.get('x-real-ip')?.trim() || 'unknown';
-}
 
 function isRateLimited(key: string) {
   const now = Date.now();
@@ -32,7 +20,13 @@ function isRateLimited(key: string) {
   return false;
 }
 
-export async function joinWaitlist(formData: FormData) {
+function redirectWithStatus(request: Request, status: string) {
+  return NextResponse.redirect(new URL(`/?waitlist=${status}`, request.url));
+}
+
+export async function POST(request: Request) {
+  const formData = await request.formData();
+
   const email = String(formData.get('email') ?? '')
     .trim()
     .toLowerCase();
@@ -40,21 +34,23 @@ export async function joinWaitlist(formData: FormData) {
   const startedAt = Number(formData.get('started_at') ?? 0);
 
   if (website) {
-    redirect('/?waitlist=success');
+    return redirectWithStatus(request, 'success');
   }
 
   const now = Date.now();
   if (!Number.isFinite(startedAt) || now - startedAt < 1200) {
-    redirect('/?waitlist=error');
+    return redirectWithStatus(request, 'error');
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    redirect('/?waitlist=invalid');
+    return redirectWithStatus(request, 'invalid');
   }
 
-  const ip = await getClientIp();
+  const forwarded = request.headers.get('x-forwarded-for');
+  const ip = (forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') ?? 'unknown')?.trim() || 'unknown';
+
   if (isRateLimited(`waitlist:${ip}`)) {
-    redirect('/?waitlist=rate_limited');
+    return redirectWithStatus(request, 'rate_limited');
   }
 
   const supabase = await createServerSupabaseClient();
@@ -72,8 +68,8 @@ export async function joinWaitlist(formData: FormData) {
     );
 
   if (error) {
-    redirect('/?waitlist=error');
+    return redirectWithStatus(request, 'error');
   }
 
-  redirect('/?waitlist=success');
+  return redirectWithStatus(request, 'success');
 }

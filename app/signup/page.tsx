@@ -1,9 +1,14 @@
 import Link from 'next/link';
 import { signup } from './actions';
 
-export default async function SignupPage({ searchParams }: { searchParams?: Promise<{ error?: string }> }) {
+export default async function SignupPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ error?: string; success?: string }>;
+}) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const error = resolvedSearchParams?.error;
+  const success = resolvedSearchParams?.success;
 
   return (
     <div className="mx-auto max-w-md space-y-4">
@@ -13,6 +18,7 @@ export default async function SignupPage({ searchParams }: { searchParams?: Prom
       </div>
 
       {error ? <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+      {success ? <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">{success}</p> : null}
 
       <form action={signup} className="card space-y-3">
         <label className="block space-y-1 text-sm">

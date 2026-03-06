@@ -23,6 +23,7 @@ import {
 import { ConfirmSubmitButton } from './ConfirmSubmitButton';
 import { ProofPageForm } from './ProofPageForm';
 import { SubmitButton } from './SubmitButton';
+import type { UserPlan } from '@/lib/billing';
 
 type ProofPage = {
   id: string;
@@ -129,7 +130,7 @@ function sectionSummary(
   return `${sectionMetrics.length} metric${sectionMetrics.length > 1 ? 's' : ''} • ${first.label}: ${first.value}`;
 }
 
-export default async function DashboardDeferred({ proofPage }: { proofPage: ProofPage }) {
+export default async function DashboardDeferred({ proofPage, plan }: { proofPage: ProofPage; plan: UserPlan }) {
   const supabase = await createServerSupabaseClient();
 
   const { data: sectionsData } = await supabase
@@ -256,7 +257,7 @@ export default async function DashboardDeferred({ proofPage }: { proofPage: Proo
           </div>
           <p className="text-xs text-slate-500">Shown on your public proof page.</p>
         </div>
-        <ProofPageForm proofPage={proofPage} />
+        <ProofPageForm proofPage={proofPage} plan={plan} />
       </section>
 
       <section className="card space-y-4">

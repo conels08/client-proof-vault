@@ -25,9 +25,17 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_or_publishable_key
 # Optional: used for absolute share-summary links; falls back to window.location.origin
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
+# Billing (Stripe)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRO_PRICE_ID=price_...
+# Required for webhook sync writes
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
 No service role key is required for MVP.
+`SUPABASE_SERVICE_ROLE_KEY` is required only if you enable Stripe webhook syncing.
 
 ## Run
 

@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Reveal from './components/Reveal';
-import { joinWaitlist } from './waitlist/actions';
 
 export default async function HomePage({
   searchParams
@@ -229,7 +228,7 @@ export default async function HomePage({
             <h3 className="text-lg font-semibold text-slate-900">Pro</h3>
             <p className="text-sm text-slate-600">Advanced analytics and additional polish tools for conversion-focused teams.</p>
             <p className="text-sm font-medium text-slate-700">Pro coming soon</p>
-            <form action={joinWaitlist} className="space-y-2">
+            <form action="/waitlist" method="post" className="space-y-2">
               <input type="hidden" name="started_at" value={Date.now()} />
               <input
                 type="text"

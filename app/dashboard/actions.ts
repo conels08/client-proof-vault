@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getUserPlan } from '@/lib/billing';
 
 function cleanFileName(name: string) {
   return name.replace(/[^a-zA-Z0-9_.-]/g, '-').toLowerCase();
@@ -89,7 +90,7 @@ async function requireUser() {
 }
 
 export async function updateProofPage(formData: FormData) {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
 
   const id = String(formData.get('id') ?? '');
   const title = String(formData.get('title') ?? '').trim();
@@ -99,9 +100,13 @@ export async function updateProofPage(formData: FormData) {
   const status = String(formData.get('status') ?? 'draft');
   const theme = String(formData.get('theme') ?? 'light');
   const accentColor = String(formData.get('accent_color') ?? '#3B82F6').trim();
-  const ctaEnabled = formData.get('cta_enabled') === 'on';
-  const ctaLabel = String(formData.get('cta_label') ?? '').trim() || null;
-  const ctaUrl = String(formData.get('cta_url') ?? '').trim() || null;
+  const requestedCtaEnabled = formData.get('cta_enabled') === 'on';
+  const requestedCtaLabel = String(formData.get('cta_label') ?? '').trim() || null;
+  const requestedCtaUrl = String(formData.get('cta_url') ?? '').trim() || null;
+  const plan = await getUserPlan(supabase, user.id);
+  const ctaEnabled = plan === 'pro' ? requestedCtaEnabled : false;
+  const ctaLabel = plan === 'pro' ? requestedCtaLabel : null;
+  const ctaUrl = plan === 'pro' ? requestedCtaUrl : null;
 
   if (!isValidHexColor(accentColor)) {
     redirectDashboard('Accent color must be a valid hex value like #3B82F6.', 'error');

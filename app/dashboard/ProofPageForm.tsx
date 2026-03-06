@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { updateProofPage } from './actions';
 import { SubmitButton } from './SubmitButton';
+import type { UserPlan } from '@/lib/billing';
 
 type ProofPageFormProps = {
   proofPage: {
@@ -18,13 +19,14 @@ type ProofPageFormProps = {
     cta_label: string | null;
     cta_url: string | null;
   };
+  plan: UserPlan;
 };
 
 function isValidHexColor(value: string) {
   return /^#[0-9A-Fa-f]{6}$/.test(value);
 }
 
-export function ProofPageForm({ proofPage }: ProofPageFormProps) {
+export function ProofPageForm({ proofPage, plan }: ProofPageFormProps) {
   const initialColor = isValidHexColor(proofPage.accent_color) ? proofPage.accent_color : '#3B82F6';
   const [accentColor, setAccentColor] = useState(initialColor);
   const [advancedHex, setAdvancedHex] = useState(initialColor);
@@ -134,10 +136,15 @@ export function ProofPageForm({ proofPage }: ProofPageFormProps) {
             defaultChecked={proofPage.cta_enabled}
             onChange={(e) => setCtaEnabled(e.target.checked)}
             className="h-4 w-4"
+            disabled={plan !== 'pro'}
           />
           <span className="font-medium">Enable share page CTA</span>
         </label>
-        <p className="text-xs text-slate-500">Show a primary conversion button on `/p/{proofPage.slug}/share`.</p>
+        <p className="text-xs text-slate-500">
+          {plan === 'pro'
+            ? 'Show a primary conversion button on `/p/slug/share`.'
+            : 'CTA conversion controls are available on Pro.'}
+        </p>
 
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-sm">
@@ -147,6 +154,7 @@ export function ProofPageForm({ proofPage }: ProofPageFormProps) {
               defaultValue={proofPage.cta_label ?? ''}
               placeholder="e.g., Book a call"
               onChange={(e) => setCtaLabel(e.target.value)}
+              disabled={plan !== 'pro'}
             />
             <p className="text-xs text-slate-500">Optional. Defaults to “Contact” when empty.</p>
           </label>
@@ -157,6 +165,7 @@ export function ProofPageForm({ proofPage }: ProofPageFormProps) {
               defaultValue={proofPage.cta_url ?? ''}
               placeholder="https://cal.com/you or hello@you.com"
               onChange={(e) => setCtaUrl(e.target.value)}
+              disabled={plan !== 'pro'}
             />
             <p className="text-xs text-slate-500">Use a full URL or email address.</p>
           </label>
